@@ -6,9 +6,7 @@ $objModal = new Models\ModalModel;
 $objBanner = new Models\BannerModel;
 $objEmpresa = new Models\EmpresaModel;
 $objPublicaciones = new Models\PublicacionModel;
-$objCorreos = new Models\CorreosModel;
-
-/* $dataCorreo = $objCorreos->registrarCorreos('1','2222'); */
+$objSuscripciones = new Models\SuscripcionesModel;
 
 $dataEmpresa = $objEmpresa->listEmpresa()[1];
 $dataBanner = $objBanner->listBannerInWeb();
@@ -227,75 +225,122 @@ $dataPublicaciones = $objPublicaciones->listPublicacionesInWeb(0, 3);
         <?php } ?>
     </div>
 
-    <br><br><br>
-    <section class="py-5">
-        <form action="" id="formSuscripcion" name="formSuscripcion" onsubmit="enviarSuscripcion(event)">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg">
-                        <div class="mb-3">
-                            <label for="nombreInput" class="form-label">Nombres</label>
-                            <input type="text" name="nombre" class="form-control" id="nombreInput" aria-describedby="nombreHelp" required>
-                            <br>
-                            <label for="correoInput" class="form-label">Correo</label>
-                            <input type="email" name="correo" class="form-control" id="correoInput" aria-describedby="correoHelp" required>
-                        </div>
-                        <button type="submit" name="register" class="btn btn-primary">Suscríbete</button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </section>
-
-
-    <!-- <form method="post">
-    	<h1>¡Suscribete!</h1>
-    	<input type="email" name="correo" placeholder="Correo">
-    	<input type="submit" name="register">
-    </form> -->
-    <?php include_once PATH_ROOT . '/views/web/partials/footer.php'; ?>
-</body>
-
-<section class="py-5">
-    <form action="" id="formSuscripcion" name="formSuscripcion" onsubmit="enviarSuscripcion(event)">
+    <!-- Sección de suscripción -->
+    <section class="py-5 bg-light">
         <div class="container">
-            <div class="row">
-                <div class="col-lg">
-                    <div class="mb-3">
-                        <label for="nombreInput" class="form-label">Nombres</label>
-                        <input type="text" name="nombre" class="form-control" id="nombreInput" aria-describedby="nombreHelp" required>
-                        <br>
-                        <label for="correoInput" class="form-label">Correo</label>
-                        <input type="email" name="correo" class="form-control" id="correoInput" aria-describedby="correoHelp" required>
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold">¡Suscríbete!</h2>
+                        <p class="text-muted">Recibe las últimas noticias y actualizaciones</p>
                     </div>
-                    <button type="submit" name="register" class="btn btn-primary">Suscríbete</button>
+                    <form id="formSuscripcion" onsubmit="enviarSuscripcion(event)">
+                        <div class="mb-3">
+                            <label for="nombreInput" class="form-label">Nombres completos</label>
+                            <input type="text" name="nombre_completo" class="form-control" id="nombreInput" 
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" 
+                                   minlength="3" maxlength="100" required>
+                            <div class="form-text">Ingresa tu nombre completo</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="emailInput" class="form-label">Correo electrónico</label>
+                            <input type="email" name="email" class="form-control" id="emailInput" 
+                                   maxlength="100" required>
+                            <div class="form-text">Tu correo no será compartido</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnSuscribir">
+                                <i class="fas fa-envelope"></i> Suscribirse
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </form>
-</section>
+    </section>
 
-<?php include_once PATH_ROOT . '/views/web/partials/footer.php'; ?>
+    <?php include_once PATH_ROOT . '/views/web/partials/footer.php'; ?>
 
-<script>
-    function enviarSuscripcion(e) {
-        e.preventDefault();
-        const data = new FormData(document.getElementById('formSuscripcion'));
-        fetch('/suscripcion/suscripcion.php', {
-            method: 'POST',
-            body: data
-        })
-        .then(res => res.text())
-        .then(res => {
-            alert(res);
-            e.target.reset(); // Resetea el formulario después de la respuesta
-        })
-        .catch(err => {
-            alert('Hubo un error al procesar la solicitud. Inténtalo de nuevo.');
-            console.error(err);
-        });
-    }
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function enviarSuscripcion(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btnSuscribir');
+            const form = document.getElementById('formSuscripcion');
+            const nombre = form.nombre_completo.value.trim();
+            const email = form.email.value.trim();
 
+            // Validaciones adicionales
+            if (nombre.length < 3) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Nombre muy corto',
+                    text: 'El nombre debe tener al menos 3 caracteres'
+                });
+                return;
+            }
 
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Correo inválido',
+                    text: 'Por favor ingresa un correo electrónico válido'
+                });
+                return;
+            }
+
+            // Deshabilitar botón durante el envío
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            const data = new FormData(form);
+            
+            fetch('/admin/suscripciones/guardar', {
+                method: 'POST',
+                body: data
+            })
+            .then(res => res.text())
+            .then(res => {
+                if (res.trim() === 'OK') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Suscripción exitosa!',
+                        text: 'Gracias por suscribirte. Recibirás noticias en tu correo.',
+                        confirmButtonText: 'Entendido'
+                    });
+                    form.reset();
+                } else if (res.includes('duplicado') || res.includes('duplicate')) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Ya estás suscrito',
+                        text: 'Este correo ya está registrado en nuestra lista.',
+                        confirmButtonText: 'Entendido'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: res || 'No se pudo completar la suscripción. Intenta nuevamente.'
+                    });
+                }
+            })
+            .catch(err => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'Hubo un problema al procesar tu solicitud. Verifica tu conexión e intenta de nuevo.'
+                });
+                console.error('Error:', err);
+            })
+            .finally(() => {
+                // Rehabilitar botón
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-envelope"></i> Suscribirse';
+            });
+        }
+    </script>
+</body>
 </html>

@@ -475,20 +475,33 @@
                 }
                 link = location.origin + path;
             }
+            // Buscar el modal
+            let modal = document.getElementById('modalFiles');
+            // Crear el input temporal dentro del modal
             let aux = document.createElement("input");
             aux.setAttribute("value", link);
-            document.body.append(aux);
+            modal.appendChild(aux);
+            aux.focus();
             aux.select();
-            document.execCommand("copy");
+            let copied = false;
+            try {
+                copied = document.execCommand("copy");
+            } catch (e) {
+                copied = false;
+            }
             aux.remove();
-            Swal.fire({
-                icon: 'success',
-                title: "<?= $this->translate('Enlace copiado al portapapeles'); ?>",
-                toast: true,
-                position: 'top-end',
-                timer: 1500,
-                showConfirmButton: false
-            });
+            if (copied) {
+                Swal.fire({
+                    icon: 'success',
+                    title: "<?= $this->translate('Enlace copiado al portapapeles'); ?>",
+                    toast: true,
+                    position: 'top-end',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } else {
+                mostrarError(link);
+            }
         }
 
         function mostrarError(link) {

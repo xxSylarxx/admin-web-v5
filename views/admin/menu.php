@@ -41,7 +41,7 @@
             </a>
         </li>
         <li>
-            <a href="/admin/correos" class="<?php echo $this->view_name == 'suscripciones' ? 'active' : '' ?>">
+            <a href="/admin/suscripciones" class="<?php echo $this->view_name == 'suscripciones' ? 'active' : '' ?>">
                 <i class="fas fa-envelope"></i>
                 <span class="links_name">
                     <?= $this->translate('Suscripciones') ?>

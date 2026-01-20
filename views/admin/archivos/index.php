@@ -97,10 +97,18 @@
                 </div>
             </div>
             <div class="ps-4" style="width: calc(100% - 210px);">
+                <div v-if="selectedFiles.length > 0" class="mb-3">
+                    <button class="btn btn-danger" @click="eliminarSeleccionados">
+                        <i class="far fa-trash-alt"></i> Eliminar seleccionados ({{selectedFiles.length}})
+                    </button>
+                </div>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
+                                <th style="width:32px; text-align:center;">
+                                    <input type="checkbox" v-model="allSelected" @change="toggleAll">
+                                </th>
                                 <th style="font-size: 13px;"><?= $this->translate('NOMBRE') ?></th>
                                 <th class="text-center" style="font-size: 13px; width: 90px; min-width: 90px;"><?= $this->translate('TIPO') ?></th>
                                 <th class="text-center" style="font-size: 13px; width: 120px; min-width: 120px;">SIZE</th>
@@ -110,6 +118,9 @@
                         </thead>
                         <tbody>
                             <tr v-for="(item, index) in filterFiles">
+                                <td style="text-align:center;">
+                                    <input type="checkbox" v-model="selectedFiles" :value="item.path">
+                                </td>
                                 <td><a :href="item.path" target="_blank">{{item.name}}</a></td>
                                 <td class="text-center">{{item.type}}</td>
                                 <td class="text-center">{{item.size}}</td>
@@ -121,7 +132,7 @@
                                 </td>
                             </tr>
                             <tr v-show="filterFiles.length == 0">
-                                <td colspan="5" class="text-center"><?= $this->translate('No se encontraron resultados') ?></td>
+                                <td colspan="6" class="text-center"><?= $this->translate('No se encontraron resultados') ?></td>
                             </tr>
                         </tbody>
                     </table>
@@ -142,7 +153,9 @@
                         path: 'img/galeria/',
                         accept: '.png, .jpg, .jpeg'
                     },
-                    files_buscar: ''
+                    files_buscar: '',
+                    selectedFiles: [],
+                    allSelected: false
                 }
             },
             created() {
@@ -167,7 +180,64 @@
                     return this.files_list.filter(file => file.name.match(this.files_buscar));
                 }
             },
+            watch: {
+                selectedFiles(val) {
+                    if (val.length === this.filterFiles.length && this.filterFiles.length > 0) {
+                        this.allSelected = true;
+                    } else {
+                        this.allSelected = false;
+                    }
+                },
+                filterFiles(val) {
+                    this.selectedFiles = [];
+                    this.allSelected = false;
+                }
+            },
             methods: {
+                toggleAll() {
+                    if (this.allSelected) {
+                        this.selectedFiles = this.filterFiles.map(f => f.path);
+                    } else {
+                        this.selectedFiles = [];
+                    }
+                },
+                eliminarSeleccionados() {
+                    let vue = this;
+                    if (this.selectedFiles.length === 0) return;
+                    Swal.fire({
+                        icon: 'question',
+                        text: '¿Está seguro de eliminar los archivos seleccionados?',
+                        showDenyButton: true,
+                        allowOutsideClick: false,
+                        confirmButtonText: 'Aceptar',
+                        denyButtonText: 'Cancelar',
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            let eliminados = 0;
+                            let fallidos = [];
+                            for (let path of vue.selectedFiles) {
+                                const data = new FormData();
+                                data.append("file_path", path);
+                                let res = await fetch('/admin/archivos/eliminar', {
+                                    method: 'POST',
+                                    body: data
+                                }).then(r => r.text());
+                                if (res.trim() == "OK") {
+                                    eliminados++;
+                                } else {
+                                    fallidos.push(path);
+                                }
+                            }
+                            vue.listarArchivos(vue.filesObj.path, vue.filesObj.key);
+                            vue.selectedFiles = [];
+                            if (fallidos.length === 0) {
+                                vue.sweetAlert(eliminados + ' archivo(s) eliminados correctamente', 'success');
+                            } else {
+                                vue.sweetAlert(eliminados + ' archivo(s) eliminados. Fallaron: ' + fallidos.join(', '), 'warning');
+                            }
+                        }
+                    });
+                },
                 listarArchivos(path, key, accept) {
                     this.cambiarClass(key);
                     this.filesObj.path = path;
