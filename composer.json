@@ -1,0 +1,23 @@
+{
+    "name": "app/web-admin",
+    "type": "project",
+    "require": {
+        "fpdo/fluentpdo": "^2.2",
+        "facebook/graph-sdk": "^5.7",
+        "phpoffice/phpspreadsheet": "^1.29"
+    },
+    "autoload": {
+        "psr-4": {
+            "Admin\\Core\\": "core/",
+            "Admin\\Models\\": "models/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Axel Valle",
+            "email": "axel18virgo@gmail.com",
+            "role": "Developer"
+        }
+    ]
+}
