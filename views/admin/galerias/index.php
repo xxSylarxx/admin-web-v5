@@ -15,6 +15,7 @@
 
 <body>
 
+    <script src="<?= PATH_PUBLIC ?>/js/bootstrap.min.js"></script>
     <script async src="<?= PATH_PUBLIC ?>/js/sweetalert2.min.js"></script>
 
     <?php include_once PATH_ROOT . '/views/admin/header.php'; ?>
@@ -66,6 +67,7 @@
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
         }
+
         .card-gallery .card {
             overflow: hidden;
             border: none;
@@ -116,7 +118,7 @@
                         </select>
                     </div>
                 <?php endif; ?>
-                
+
                 <button class="btn btn-danger me-3" data-bs-toggle="modal" data-bs-target="#modalCategorias"><i class="far fa-list-alt"></i>&nbsp; Ver categorías</button>
                 <a href="/admin/galerias/editor" class="btn btn-success text-white"><i class="fas fa-plus"></i>&nbsp; Crear Galería</a>
             </div>
@@ -242,10 +244,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="input-group w-50 mb-4 mt-3 mx-auto">
-                        <input type="text" class="form-control" id="txtcategoria" placeholder="Nombre de categoría">
-                        <span class="btn btn-success text-white" onclick="actionCategoria('save')"><i class="fas fa-plus"></i>&nbsp; Agregar</span>
-                    </div>
                     <table class="table">
                         <thead style="font-size: 13px;">
                             <tr>
@@ -280,11 +278,12 @@
     <script>
         const actionCategoria = (action, idcateg = null) => {
             let url = '/admin/galerias/categoria';
-            if (action == 'save') {
-                const name = document.getElementById('txtcategoria').value;
-                if (name == '') return;
-                url += '/save/' + encodeURIComponent(name);
-            } else if (action == 'estado') {
+            /*  if (action == 'save') {
+                 const name = document.getElementById('txtcategoria').value;
+                 if (name == '') return;
+                 url += '/save/' + encodeURIComponent(name);
+             } else  */
+            if (action == 'estado') {
                 const estado = document.getElementById('catcheck-' + idcateg).checked;
                 url += `/${idcateg}/${estado ? 'A' : 'I'}`;
             }
@@ -294,9 +293,9 @@
                 return res.text();
             }).then(function(res) {
                 if (res.trim() == 'OK') {
-                    if (action == 'save') {
-                        location.reload();
-                    }
+                    // if (action == 'save') {
+                    //     location.reload();
+                    // }
                 } else {
                     alert(res);
                 }

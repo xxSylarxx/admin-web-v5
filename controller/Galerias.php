@@ -74,6 +74,8 @@ class Galerias extends Controller
                 $params['idcatg'] = null;
             }
             
+            $params['fecreg'] = date('Y-m-d H:i:s');
+            
             $objGalerias = new GaleriasModel();
             $resp = $objGalerias->insertarGaleria($params);
             if ($resp) {

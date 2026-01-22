@@ -260,14 +260,17 @@ die();
 
         const TituloImagen = (index) => {
             Swal.fire({
-                text: 'Ingresa el titulo de la portada',
-                input: 'text',
-                inputValue: listItems[index].titulo,
-                confirmButtonText: 'Aceptar',
+            text: 'Ingresa el titulo de la portada',
+            input: 'text',
+            inputValue: listItems[index].titulo,
+            inputAttributes: {
+                maxlength: 20
+            },
+            confirmButtonText: 'Aceptar',
             }).then((result) => {
-                if (result.isConfirmed) {
-                    listItems[index].titulo = result.value;
-                }
+            if (result.isConfirmed) {
+                listItems[index].titulo = result.value;
+            }
             });
         }
         const DetalleImagen = (index) => {
@@ -275,6 +278,9 @@ die();
                 text: 'Ingresa el detalle de la portada',
                 input: 'textarea',
                 inputValue: listItems[index].detalle,
+                inputAttributes: {
+                maxlength: 180
+            },
                 confirmButtonText: 'Aceptar',
             }).then((result) => {
                 if (result.isConfirmed) {

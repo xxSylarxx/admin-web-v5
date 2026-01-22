@@ -54,7 +54,7 @@
     </div>
 
     <section class="fixed-bottom text-center pb-3">
-        <span style="color: rgba(255, 255, 255, .5);">AdminWeb. 4.5</span>
+        <span style="color: rgba(255, 255, 255, .5);">AdminWeb. 5.0</span>
     </section>
 
     <script>

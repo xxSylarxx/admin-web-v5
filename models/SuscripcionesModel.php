@@ -33,8 +33,9 @@ class SuscripcionesModel extends DataBase
     {
         try {
             $email = strtolower(trim($email));
+            // Buscar tanto en el campo nuevo 'correo' como en el antiguo 'email' para compatibilidad
             $query = $this->bd->from('suscripciones')
-                ->where('LOWER(email) = ?', $email)
+                ->where('LOWER(correo) = ? OR LOWER(email) = ?', [$email, $email])
                 ->fetch();
             return !empty($query);
         } catch (\PDOException $e) {
@@ -94,6 +95,34 @@ class SuscripcionesModel extends DataBase
                 ->where('idsuscripcion', $idsuscripcion);
             $res = $query->execute();
             return $res;
+        } catch (\PDOException $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function listarSuscripcionesPorIds($idsArray)
+    {
+        try {
+            if (empty($idsArray)) {
+                return array();
+            }
+            
+            // Convertir IDs a enteros para seguridad
+            $idsArray = array_map('intval', $idsArray);
+            
+            // Crear placeholders para la consulta IN
+            $placeholders = implode(',', array_fill(0, count($idsArray), '?'));
+            
+            // Usar where con sintaxis SQL directa para IN
+            $query = $this->bd->from('suscripciones')
+                ->where("idsuscripcion IN ($placeholders)", $idsArray)
+                ->orderBy('fecha_suscripcion DESC')
+                ->fetchAll();
+            
+            if (is_array($query)) {
+                return $query;
+            }
+            return array();
         } catch (\PDOException $e) {
             die($e->getMessage());
         }

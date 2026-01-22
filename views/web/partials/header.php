@@ -73,7 +73,7 @@
                             Galería <i class="fas fa-caret-down"></i>
                         </a>
                         <ul id="menu-responsive" class="dropdown-menu animate__animated animate__fadeInUp" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/galeria-lista">Galerias</a>
+                            <a class="dropdown-item" href="/galerias">Galerias</a>
                             <li> <a class="dropdown-item py-2">Servicios&raquo; </a>
                                 <ul class="submenu dropdown-menu">
                                     <li><a class="dropdown-item" href="#"> Psicología</a></li>
@@ -91,6 +91,9 @@
                             <li><a class="dropdown-item py-2" href="/publicaciones/noticias">Noticias</a></li>
                             <li><a class="dropdown-item py-2" href="/publicaciones/documentos">Documentos</a></li>
                         </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admision">Admisión</a>
                     </li>
                     <li class="nav-item me-0">
                         <a class="nav-link round" href="/">Contacto</a>

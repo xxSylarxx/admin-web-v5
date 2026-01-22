@@ -4,24 +4,25 @@ use Admin\Models\SuscripcionesModel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
+// Limpiar cualquier output previo
+if (ob_get_length()) ob_end_clean();
 
-$fechaDesde = $this->fechaDesde ?? null;
-$fechaHasta = $this->fechaHasta ?? null;
+$ids = $this->ids ?? null;
 
+// Obtener suscripciones
 $objSuscripciones = new SuscripcionesModel();
-$suscripciones = $objSuscripciones->listarSuscripciones();
 
-
-if ($fechaDesde && $fechaHasta) {
-    $suscripciones = array_filter($suscripciones, function($suscripcion) use ($fechaDesde, $fechaHasta) {
-        $fecha = date('Y-m-d', strtotime($suscripcion['fecha_suscripcion']));
-        return $fecha >= $fechaDesde && $fecha <= $fechaHasta;
-    });
+// Si hay IDs específicos, filtrar por ellos; si no, obtener todos
+if ($ids && !empty($ids)) {
+    $idsArray = explode(',', $ids);
+    $suscripciones = $objSuscripciones->listarSuscripcionesPorIds($idsArray);
+} else {
+    $suscripciones = $objSuscripciones->listarSuscripciones();
 }
 
 
-$activos = count(array_filter($suscripciones, fn($s) => $s['estado'] == 'activo'));
-$inactivos = count(array_filter($suscripciones, fn($s) => $s['estado'] == 'inactivo'));
+$activos = count(array_filter($suscripciones, fn($s) => ($s['estado'] ?? 'activo') == 'activo'));
+$inactivos = count(array_filter($suscripciones, fn($s) => ($s['estado'] ?? 'activo') == 'inactivo'));
 
 $html = '<!DOCTYPE html>
 <html lang="es">
@@ -278,6 +279,11 @@ $dompdf->render();
 // Generar nombre del archivo
 $filename = 'suscripciones_' . date('Y-m-d_His') . '.pdf';
 
-// Enviar el PDF al navegador
-$dompdf->stream($filename, ['Attachment' => true]);
+// Limpiar output buffer antes de enviar el PDF
+while (ob_get_level()) {
+    ob_end_clean();
+}
+
+// Enviar el PDF al navegador para visualización (Attachment => false para ver en navegador)
+$dompdf->stream($filename, ['Attachment' => false]);
 exit;

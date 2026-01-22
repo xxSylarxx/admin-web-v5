@@ -36,25 +36,44 @@
                 <div class="circle"></div>
             </div>
         </div>
-        <div class="d-flex align-items-center">
-            <div class="tab-titulo">
-                <?= $this->translate('SUSCRIPCIONES') ?>
-            </div>
-            <div class="ms-auto d-flex align-items-center">
-                <div class="me-3">
-                    <input type="search" class="form-control" placeholder="<?= $this->translate('Buscar correo o nombre') ?>" v-model="searchTerm">
+        <div class="tab-titulo pb-2" style="text-align:start;">
+                        <?= $this->translate('SUSCRIPCIONES') ?>
+                    </div>
+        <div class="d-flex align-items-center justify-content-between">
+
+            <div class="d-flex align-items-center  gap-2">
+                <!--  <div>
+                    <input type="search" class="form-control" placeholder="<//?= $this->translate('Buscar correo o nombre') ?>" v-model="searchTerm" style="width: 200px;">
                 </div>
+                     -->
+                <!-- Filtro de asunto -->
+                <select class="form-select" v-model="filtroAsunto" style="width: 170px;">
+                    <option value="">Todos los asuntos</option>
+                    <option v-for="asunto in asuntosUnicos" :key="asunto" :value="asunto">{{ asunto || 'Sin asunto' }}</option>
+                </select>
+
+                <!-- Filtro de nivel -->
+                <select class="form-select" v-model="filtroNivel" style="width: 180px;">
+                    <option value="">Todos los niveles</option>
+                    <option v-for="nivel in nivelesUnicos" :key="nivel" :value="nivel">{{ nivel || 'Sin nivel' }}</option>
+                </select>
+
+                <!-- Filtro de grado -->
+                <select class="form-select" v-model="filtroGrado" style="width: 180px;">
+                    <option value="">Todos los grados</option>
+                    <option v-for="grado in gradosUnicos" :key="grado" :value="grado">{{ grado || 'Sin grado' }}</option>
+                </select>
 
                 <!-- Filtros de fecha -->
-                <label for="fechaDesde" class="mx-2 text-nowrap"><?= $this->translate('Desde:') ?></label>
-                <input type="date" id="fechaDesde" class="form-control me-2" v-model="fechaDesde" style="width: 150px;">
+                <label for="fechaDesde" class="text-nowrap"><?= $this->translate('Desde:') ?></label>
+                <input type="date" id="fechaDesde" class="form-control" v-model="fechaDesde" style="width: 150px;">
 
-                <label for="fechaHasta" class="mx-2 text-nowrap"><?= $this->translate('Hasta:') ?></label>
-                <input type="date" id="fechaHasta" class="form-control me-2" v-model="fechaHasta" style="width: 150px;">
+                <label for="fechaHasta" class="text-nowrap"><?= $this->translate('Hasta:') ?></label>
+                <input type="date" id="fechaHasta" class="form-control" v-model="fechaHasta" style="width: 150px;">
 
                 <!-- Botón limpiar filtros -->
-                <button v-if="fechaDesde || fechaHasta" type="button" class="btn btn-outline-secondary btn-sm me-3" @click="limpiarFiltros()" title="Limpiar filtros de fecha">
-                    <i class="fas fa-times"></i>
+                <button v-if="searchTerm || fechaDesde || fechaHasta || filtroAsunto || filtroNivel || filtroGrado" type="button" class="btn btn-outline-secondary btn-sm" @click="limpiarFiltros()" title="Limpiar filtros">
+                    <i class="fas fa-times"></i> Limpiar
                 </button>
 
                 <!-- Botones de exportación -->
@@ -92,10 +111,14 @@
                             <input type="checkbox" v-model="allSelected" @change="toggleAll">
                         </th>
                         <th style="font-size: 13px; width: 60px;"><?= $this->translate('ITEM') ?></th>
-                        <th style="font-size: 13px;"><?= $this->translate('NOMBRE COMPLETO') ?></th>
+                        <th style="font-size: 13px;"><?= $this->translate('NOMBRES') ?></th>
+                        <th style="font-size: 13px;"><?= $this->translate('APELLIDOS') ?></th>
                         <th style="font-size: 13px;"><?= $this->translate('EMAIL') ?></th>
-                        <th style="font-size: 13px; width: 170px;"><?= $this->translate('FECHA DE SUSCRIPCIÓN') ?></th>
-                        <th class="text-center" style="font-size: 13px; width: 100px;"><?= $this->translate('OPCIONES') ?></th>
+                        <th style="font-size: 13px;"><?= $this->translate('NIVEL') ?></th>
+                        <th style="font-size: 13px;"><?= $this->translate('GRADO') ?></th>
+                        <th style="font-size: 13px;"><?= $this->translate('ASUNTO') ?></th>
+                        <th style="font-size: 13px; width: 170px;"><?= $this->translate('FECHA') ?></th>
+                        <th class="text-center" style="font-size: 13px; width: 120px;"><?= $this->translate('OPCIONES') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,17 +127,24 @@
                             <input type="checkbox" v-model="selectedSuscripciones" :value="item.idsuscripcion">
                         </td>
                         <td><i class="fas fa-mail-bulk"></i></td>
-                        <td>{{item.nombre_completo}}</td>
-                        <td>{{item.email}}</td>
+                        <td>{{item.nombres || '-'}}</td>
+                        <td>{{item.apellidos || '-'}}</td>
+                        <td>{{item.correo || item.email || '-'}}</td>
+                        <td>{{item.nivel || '-'}}</td>
+                        <td>{{item.grado || '-'}}</td>
+                        <td>{{item.asunto || '-'}}</td>
                         <td>{{item.fecha_suscripcion}}</td>
                         <td class="text-center">
+                            <button v-if="item.consulta" class="btn btn-outline-info btn-sm me-1" title="<?= $this->translate('Ver consulta') ?>" @click="verConsulta(item)">
+                                <i class="fas fa-eye"></i>
+                            </button>
                             <button class="btn btn-outline-danger btn-sm" title="<?= $this->translate('Eliminar') ?>" @click="eliminarSuscripcion(item.idsuscripcion)">
                                 <i class="far fa-trash-alt"></i>
                             </button>
                         </td>
                     </tr>
                     <tr v-show="filteredSuscripciones.length == 0">
-                        <td colspan="6" class="text-center"><?= $this->translate('No se encontraron resultados') ?></td>
+                        <td colspan="10" class="text-center"><?= $this->translate('No se encontraron resultados') ?></td>
                     </tr>
                 </tbody>
             </table>
@@ -163,6 +193,9 @@
                     searchTerm: '',
                     fechaDesde: '',
                     fechaHasta: '',
+                    filtroAsunto: '',
+                    filtroNivel: '',
+                    filtroGrado: '',
                     selectedSuscripciones: [],
                     allSelected: false,
                     currentPage: 1,
@@ -176,14 +209,28 @@
                     if (this.searchTerm) {
                         const search = this.searchTerm.toLowerCase();
                         filtered = filtered.filter(item =>
-                            item.nombre_completo.toLowerCase().includes(search) ||
-                            item.email.toLowerCase().includes(search)
+                            (item.nombres && item.nombres.toLowerCase().includes(search)) ||
+                            (item.apellidos && item.apellidos.toLowerCase().includes(search)) ||
+                            (item.nombre_completo && item.nombre_completo.toLowerCase().includes(search)) ||
+                            (item.correo && item.correo.toLowerCase().includes(search)) ||
+                            (item.email && item.email.toLowerCase().includes(search))
                         );
+                    }
+
+                    if (this.filtroAsunto) {
+                        filtered = filtered.filter(item => item.asunto === this.filtroAsunto);
+                    }
+
+                    if (this.filtroNivel) {
+                        filtered = filtered.filter(item => item.nivel === this.filtroNivel);
+                    }
+
+                    if (this.filtroGrado) {
+                        filtered = filtered.filter(item => item.grado === this.filtroGrado);
                     }
 
                     if (this.fechaDesde || this.fechaHasta) {
                         filtered = filtered.filter(item => {
-
                             const fechaItem = item.fecha_suscripcion.split(' ')[0];
 
                             if (this.fechaDesde && this.fechaHasta) {
@@ -228,6 +275,21 @@
                     if (total > 1) pages.push(total);
 
                     return pages.filter((v, i, a) => a.indexOf(v) === i);
+                },
+                // Obtener valores únicos de asuntos
+                asuntosUnicos() {
+                    const asuntos = [...new Set(this.suscripciones.map(item => item.asunto).filter(Boolean))];
+                    return asuntos.sort();
+                },
+                // Obtener valores únicos de niveles
+                nivelesUnicos() {
+                    const niveles = [...new Set(this.suscripciones.map(item => item.nivel).filter(Boolean))];
+                    return niveles.sort();
+                },
+                // Obtener valores únicos de grados
+                gradosUnicos() {
+                    const grados = [...new Set(this.suscripciones.map(item => item.grado).filter(Boolean))];
+                    return grados.sort();
                 }
             },
             watch: {
@@ -327,21 +389,19 @@
                     });
                 },
                 exportar(formato) {
+                    // Obtener IDs de los registros filtrados
+                    const ids = this.filteredSuscripciones.map(item => item.idsuscripcion);
+
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/admin/suscripciones/excel';
 
-                    const inputFechaDesde = document.createElement('input');
-                    inputFechaDesde.type = 'hidden';
-                    inputFechaDesde.name = 'fechaDesde';
-                    inputFechaDesde.value = this.fechaDesde || '';
-                    form.appendChild(inputFechaDesde);
-
-                    const inputFechaHasta = document.createElement('input');
-                    inputFechaHasta.type = 'hidden';
-                    inputFechaHasta.name = 'fechaHasta';
-                    inputFechaHasta.value = this.fechaHasta || '';
-                    form.appendChild(inputFechaHasta);
+                    // Enviar IDs de registros filtrados
+                    const inputIds = document.createElement('input');
+                    inputIds.type = 'hidden';
+                    inputIds.name = 'ids';
+                    inputIds.value = ids.join(',');
+                    form.appendChild(inputIds);
 
                     const inputFormato = document.createElement('input');
                     inputFormato.type = 'hidden';
@@ -354,29 +414,50 @@
                     document.body.removeChild(form);
                 },
                 exportarPDF() {
+                    // Obtener IDs de los registros filtrados
+                    const ids = this.filteredSuscripciones.map(item => item.idsuscripcion);
+
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/admin/suscripciones/pdf';
+                    form.target = '_blank'; // Abrir en nueva pestaña
 
-                    const inputFechaDesde = document.createElement('input');
-                    inputFechaDesde.type = 'hidden';
-                    inputFechaDesde.name = 'fechaDesde';
-                    inputFechaDesde.value = this.fechaDesde || '';
-                    form.appendChild(inputFechaDesde);
-
-                    const inputFechaHasta = document.createElement('input');
-                    inputFechaHasta.type = 'hidden';
-                    inputFechaHasta.name = 'fechaHasta';
-                    inputFechaHasta.value = this.fechaHasta || '';
-                    form.appendChild(inputFechaHasta);
+                    // Enviar IDs de registros filtrados
+                    const inputIds = document.createElement('input');
+                    inputIds.type = 'hidden';
+                    inputIds.name = 'ids';
+                    inputIds.value = ids.join(',');
+                    form.appendChild(inputIds);
 
                     document.body.appendChild(form);
                     form.submit();
                     document.body.removeChild(form);
                 },
                 limpiarFiltros() {
+                    this.searchTerm = '';
                     this.fechaDesde = '';
                     this.fechaHasta = '';
+                    this.filtroAsunto = '';
+                    this.filtroNivel = '';
+                    this.filtroGrado = '';
+                },
+                verConsulta(item) {
+                    Swal.fire({
+                        title: 'Consulta de ' + (item.nombres || '') + ' ' + (item.apellidos || ''),
+                        html: `
+                            <div class="text-start">
+                                <p><strong>Email:</strong> ${item.correo || item.email || '-'}</p>
+                                <p><strong>Nivel:</strong> ${item.nivel || '-'}</p>
+                                <p><strong>Grado:</strong> ${item.grado || '-'}</p>
+                                <p><strong>Asunto:</strong> ${item.asunto || '-'}</p>
+                                <hr>
+                                <p><strong>Consulta:</strong></p>
+                                <p style="white-space: pre-wrap;">${item.consulta || 'Sin consulta'}</p>
+                            </div>
+                        `,
+                        width: '600px',
+                        confirmButtonText: 'Cerrar'
+                    });
                 }
             }
         });

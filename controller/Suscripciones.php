@@ -25,64 +25,83 @@ class Suscripciones extends Controller
 
     public function excel()
     {
-        $fechaDesde = parent::getPost('fechaDesde');
-        $fechaHasta = parent::getPost('fechaHasta');
+        $ids = parent::getPost('ids'); // IDs separados por coma
         $formato = parent::getPost('formato') ?? 'xlsx';
         
         $view = new View();
-        $view->setVariable('fechaDesde', $fechaDesde);
-        $view->setVariable('fechaHasta', $fechaHasta);
+        $view->setVariable('ids', $ids);
         $view->setVariable('formato', $formato);
         $view->render("suscripciones/excel");
     }
 
     public function pdf()
     {
-        $fechaDesde = parent::getPost('fechaDesde');
-        $fechaHasta = parent::getPost('fechaHasta');
+        $ids = parent::getPost('ids'); // IDs separados por coma
         
         $view = new View();
-        $view->setVariable('fechaDesde', $fechaDesde);
-        $view->setVariable('fechaHasta', $fechaHasta);
+        $view->setVariable('ids', $ids);
         $view->render("suscripciones/pdf");
     }
 
     public function guardar()
     {
         if (parent::isPost()) {
-            // Obtener y sanitizar datos
-            $nombre = trim(parent::getPost('nombre_completo'));
-            $email = trim(parent::getPost('email'));
+            // Obtener y sanitizar datos nuevos
+            $nombres = trim(parent::getPost('nombres'));
+            $apellidos = trim(parent::getPost('apellidos'));
+            $correo = trim(parent::getPost('correo'));
+            $nivel = trim(parent::getPost('nivel'));
+            $grado = trim(parent::getPost('grado'));
+            $consulta = trim(parent::getPost('consulta'));
+            $asunto = trim(parent::getPost('asunto')) ?: 'informes';
 
             // Validaciones del lado del servidor
-            if (empty($nombre) || empty($email)) {
+            if (empty($nombres) || empty($apellidos) || empty($correo) || empty($nivel) || empty($grado) || empty($consulta)) {
                 die('Error: Todos los campos son obligatorios');
             }
 
             // Validar longitud
-            if (strlen($nombre) < 3 || strlen($nombre) > 100) {
-                die('Error: El nombre debe tener entre 3 y 100 caracteres');
+            if (strlen($nombres) < 2 || strlen($nombres) > 50) {
+                die('Error: Los nombres deben tener entre 2 y 50 caracteres');
             }
 
-            if (strlen($email) > 100) {
-                die('Error: El email es demasiado largo');
+            if (strlen($apellidos) < 2 || strlen($apellidos) > 50) {
+                die('Error: Los apellidos deben tener entre 2 y 50 caracteres');
+            }
+
+            if (strlen($correo) > 100) {
+                die('Error: El correo es demasiado largo');
+            }
+
+            if (strlen($consulta) < 10 || strlen($consulta) > 500) {
+                die('Error: La consulta debe tener entre 10 y 500 caracteres');
             }
 
             // Validar formato de email
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                 die('Error: Formato de correo electrónico inválido');
             }
 
-            // Sanitizar nombre (solo letras, espacios y caracteres acentuados)
-            $nombre = preg_replace('/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/', '', $nombre);
+            // Sanitizar nombres y apellidos (solo letras, espacios y caracteres acentuados)
+            $nombres = preg_replace('/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/', '', $nombres);
+            $apellidos = preg_replace('/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/', '', $apellidos);
 
             // Obtener IP del usuario
             $ip = $_SERVER['REMOTE_ADDR'] ?? null;
 
-            // Preparar datos para insertar
+            // Preparar datos para insertar con los nuevos campos
+            // También llenar campos antiguos para compatibilidad
             $datos = [
-                'nombre_completo' => $nombre,
-                'email' => strtolower($email),
+                'nombres' => $nombres,
+                'apellidos' => $apellidos,
+                'correo' => strtolower($correo),
+                'nivel' => $nivel,
+                'grado' => $grado,
+                'consulta' => $consulta,
+                'asunto' => $asunto,
+                // Campos antiguos para compatibilidad
+                'nombre_completo' => $nombres . ' ' . $apellidos,
+                'email' => strtolower($correo),
                 'fecha_suscripcion' => date('Y-m-d H:i:s'),
                 'estado' => 'activo',
                 'ip_registro' => $ip
@@ -91,7 +110,7 @@ class Suscripciones extends Controller
             $objSuscripciones = new SuscripcionesModel();
             
             // Verificar si el email ya existe
-            if ($objSuscripciones->emailExiste($email)) {
+            if ($objSuscripciones->emailExiste($correo)) {
                 die('Este correo ya está registrado en nuestra lista de suscripciones');
             }
 

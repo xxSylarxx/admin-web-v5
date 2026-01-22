@@ -266,26 +266,32 @@ if (isset($_POST['preview']) && $_POST['preview'] == '1') {
             transform: scale(1.05);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
+
         @media (max-width: 768px) {
             .portada-admision h1 {
                 font-size: 2.5rem;
             }
         }
+        iframe {
+            width: 70%;
+        }
     </style>
 
     <!-- PORTADA -->
-    <div class="portada-admision">
-        <div class="content">
-            <div class="container animate__animated animate__fadeInDown">
-                <ol class="breadcrumb pb-0 mb-3">
-                    <li class="breadcrumb-item"><a href="/" style="color: white;">Inicio</a></li>
-                    <li class="breadcrumb-item active" style="color: rgba(255,255,255,0.8);">Admisión</li>
-                </ol>
-                <h1><?= !empty($dataPortada['titulo']) ? $dataPortada['titulo'] : 'Admisión' ?></h1>
-                <p class="lead"><?= !empty($dataPortada['subtitulo']) ? $dataPortada['subtitulo'] : 'Inicia tu proceso de admisión' ?></p>
+    <?php if (!empty($dataPortada)) { ?>
+        <div class="portada-admision">
+            <div class="content">
+                <div class="container animate__animated animate__fadeInDown">
+                    <ol class="breadcrumb pb-0 mb-3">
+                        <li class="breadcrumb-item"><a href="/" style="color: white;">Inicio</a></li>
+                        <li class="breadcrumb-item active" style="color: rgba(255,255,255,0.8);">Admisión</li>
+                    </ol>
+                    <h1><?= !empty($dataPortada['titulo']) ? $dataPortada['titulo'] : 'Admisión' ?></h1>
+                    <p class="lead"><?= !empty($dataPortada['subtitulo']) ? $dataPortada['subtitulo'] : 'Inicia tu proceso de admisión' ?></p>
+                </div>
             </div>
         </div>
-    </div>
+    <?php } ?>
 
     <!-- CONTENIDO DE ADMISIÓN -->
     <?php if (!empty($dataAdmision['cuerpo'])) : ?>
@@ -305,6 +311,69 @@ if (isset($_POST['preview']) && $_POST['preview'] == '1') {
 
     <?php include_once PATH_ROOT . '/views/web/partials/footer.php'; ?>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentHtml = document.querySelector('.content-html');
+
+            if (contentHtml) {
+                const iframes = contentHtml.querySelectorAll('iframe');
+                let pdfCounter = 0;
+
+                iframes.forEach(iframe => {
+                    const initialSrc = iframe.src;
+
+                    if (initialSrc && initialSrc.toLowerCase().includes('.pdf')) {
+                        pdfCounter++;
+                        const pdfJsViewerUrl = "/lib/pdfjs/web/viewer.html?file=";
+                        const newSrc = pdfJsViewerUrl + encodeURIComponent(initialSrc);
+
+                        iframe.id = 'pdfViewer' + pdfCounter;
+                        iframe.src = newSrc;
+                        iframe.frameBorder = "0";
+
+                        let width = iframe.style.width || iframe.getAttribute('width');
+                        
+                        if (width) {
+                           
+                            const widthInPixels = parseInt(width);
+                            if (!isNaN(widthInPixels)) {
+                                const containerWidth = contentHtml.offsetWidth;
+                                const percentage = (widthInPixels / containerWidth) * 100;
+                              
+                                if (percentage >= 90) {
+                                    iframe.style.width = "100%";
+                                } else if (percentage >= 70) {
+                                    iframe.style.width = "80%";
+                                } else if (percentage >= 40) {
+                                    iframe.style.width = "50%";
+                                }
+                               
+                            }
+                        } else {
+                           
+                            iframe.style.width = "100%";
+                        }
+
+                        if (!iframe.style.height && !iframe.getAttribute('height')) {
+                            iframe.style.height = "600px";
+                        }
+
+                        const parent = iframe.parentElement;
+                        if (parent) {
+                            const parentAlign = window.getComputedStyle(parent).textAlign;
+
+                            if (parentAlign === 'center' || iframe.getAttribute('align') === 'center') {
+                               
+                                iframe.style.display = 'block';
+                                iframe.style.margin = '0 auto';
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 
 </html>

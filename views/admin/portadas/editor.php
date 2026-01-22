@@ -61,6 +61,20 @@
             border: 3px solid var(--color3);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
+
+        #modalFiles .file-item-end {
+            height: 150px;
+            background-color: rgb(230, 230, 230);
+            border-radius: 5px;
+            transition: all .3s;
+            cursor: pointer;
+        }
+
+        #modalFiles .file-item-end:hover {
+            background-color: rgb(200, 200, 200);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+        }
     </style>
 
     <section class="content">
@@ -84,20 +98,20 @@
                             <input type="hidden" name="idportada" value="<?= $this->dataPortada['idportada'] ?>">
 
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6 mb-3" hidden>
                                     <label class="form-label fw-bold">Identificador de Página <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="pagina"
                                         value="<?= $this->dataPortada['pagina'] ?>"
-                                        placeholder="ej: nosotros, servicios, contacto" required>
-                                    <small class="text-muted">Sin espacios, solo letras minúsculas. Debe coincidir con el archivo PHP</small>
+                                        placeholder="ej: nosotros, servicios, contacto" required >
+                                    <!-- <small class="text-muted">Sin espacios, solo letras minúsculas. Debe coincidir con el archivo PHP</small> -->
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6 mb-3" hidden>
                                     <label class="form-label fw-bold">Nombre Descriptivo <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="nombre"
                                         value="<?= $this->dataPortada['nombre'] ?>"
-                                        placeholder="ej: Nosotros, Servicios" required>
-                                    <small class="text-muted">Nombre que aparece en el admin</small>
+                                        placeholder="ej: Nosotros, Servicios" required >
+                                    <!-- <small class="text-muted">Nombre que aparece en el admin</small> -->
                                 </div>
                             </div>
 
@@ -196,27 +210,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row px-2">
-                            <?php if (!empty($this->listArchivos)) : ?>
-                                <?php foreach ($this->listArchivos as $archivo) : ?>
-                                    <?php if (in_array(strtolower($archivo['type']), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) : ?>
-                                        <div class="col-sm-3 pb-2 p-2">
-                                            <div class="file-item" onclick="seleccionarImagen('<?= $archivo['path'] ?>', this)">
-                                                <img src="<?= $archivo['path'] ?>"
-                                                    alt="<?= $archivo['name'] ?>"
-                                                    title="<?= $archivo['name'] ?>">
-                                            </div>
-                                        </div>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            <?php else : ?>
-                                <div class="col-12">
-                                    <div class="alert alert-info text-center">
-                                        <i class="fas fa-info-circle"></i>
-                                        No hay imágenes en la carpeta "portadas".
-                                    </div>
-                                </div>
-                            <?php endif; ?>
+                        <div class="row px-2" id="row-files">
                         </div>
                     </div>
                     <div class="modal-footer d-flex align-items-center">
@@ -224,7 +218,7 @@
                             <i class="fas fa-link"></i>&nbsp; Insertar imagen vía link externo
                         </a>
                         <span class="ms-auto">
-                            Resultados: <?= count($this->listArchivos) ?>
+                            Mostrando <span id="cantFiles">0</span> de <span id="totalFiles">0</span>
                         </span>
                     </div>
                 </div>
@@ -234,6 +228,10 @@
     </section>
 
     <script>
+        let listFiles = [];
+        let cantFiles = document.getElementById('cantFiles');
+        let totalFiles = document.getElementById('totalFiles');
+
         const seleccionarImagen = (url, element) => {
             // Actualizar input y preview
             document.getElementById('urlImagen').value = url;
@@ -245,9 +243,9 @@
             });
             element.classList.add('selected');
 
-            // Cerrar modal después de un momento
+            
             setTimeout(() => {
-                $('#modalFiles').modal('hide');
+                bootstrap.Modal.getInstance(document.getElementById('modalFiles')).hide();
             }, 300);
         }
 
@@ -256,7 +254,7 @@
             if (url && url.length > 0 && url !== 'https://') {
                 document.getElementById('urlImagen').value = url;
                 actualizarPreview();
-                $('#modalFiles').modal('hide');
+                bootstrap.Modal.getInstance(document.getElementById('modalFiles')).hide();
             } else if (url !== null) {
                 Swal.fire({
                     icon: 'warning',
@@ -277,6 +275,68 @@
                 preview.src = 'https://via.placeholder.com/800x300?text=Vista+Previa';
             }
         }
+
+        const listFilesJson = (path) => {
+            const data = new FormData();
+            const total = listFiles.length;
+            data.append('path', path);
+            const ruta = '/admin/archivos/listar/' + total;
+            fetch(ruta, {
+                method: 'POST',
+                body: data
+            }).then(res => res.text())
+            .then(res => {
+                try {
+                    const result = JSON.parse(res);
+                    if (result.files && result.files.length > 0) {
+                        listFiles = listFiles.concat(result.files);
+                        cantFiles.innerText = listFiles.length;
+                        totalFiles.innerText = result.total;
+                        listFilesHTML();
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            text: 'No hay más archivos para mostrar',
+                            timer: 2000
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        text: res || 'Error al cargar archivos'
+                    });
+                }
+            });
+        }
+
+        const listFilesHTML = () => {
+            let html = '';
+            listFiles.forEach((file, index) => {
+                if (file.type && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(file.type.toLowerCase())) {
+                    html += `<div class="col-sm-3 pb-2 p-2">
+                        <div class="file-item" onclick="seleccionarImagen('${file.path}', this)">
+                            <img src="${file.path}" alt="${file.name}" title="${file.name}">
+                        </div>
+                    </div>`;
+                }
+            });
+            // Agregar botón "Buscar más"
+            html += `<div class="col-sm-3 pb-2 p-2">
+                <div class="file-item-end text-center d-flex flex-column align-items-center justify-content-center" 
+                     onclick="listFilesJson('img/portadas/')">
+                    <span class="fs-2"><i class="far fa-arrow-alt-circle-right"></i></span>
+                    <span class="mt-2">Buscar más</span>
+                </div>
+            </div>`;
+            document.getElementById('row-files').innerHTML = html;
+        }
+
+        // Cargar archivos iniciales al abrir modal
+        document.getElementById('modalFiles').addEventListener('show.bs.modal', function () {
+            if (listFiles.length === 0) {
+                listFilesJson('img/portadas/');
+            }
+        });
 
         document.getElementById('formPortada').addEventListener('submit', async (e) => {
             e.preventDefault();

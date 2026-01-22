@@ -101,7 +101,7 @@
                         </div>
                         <div class="card-footer d-flex align-items-center" style="padding-top: 12px; padding-bottom: 12px;">
                             <button class="btn btn-outline-success me-2" onclick="location.href = '/admin/portadas/editor/<?= $portada['idportada'] ?>'" title="Editar"><i class="fas fa-pencil-alt"></i></button>
-                            <button class="btn btn-outline-danger" onclick="eliminarPortada('<?= $portada['idportada'] ?>')" title="Eliminar"><i class="far fa-trash-alt"></i></button>
+                            <!-- <button class="btn btn-outline-danger" onclick="eliminarPortada('<//?= $portada['idportada'] ?>')" title="Eliminar"><i class="far fa-trash-alt"></i></button> -->
                             <div class="ms-auto d-flex">
                                 <label class="form-check-label me-1" style="padding-top: 1px; cursor: pointer;" for="check-<?= $portada['idportada'] ?>"><?= $this->translate('Visible') ?></label>
                                 <input class="form-check-input ms-1" type="checkbox" id="check-<?= $portada['idportada'] ?>" onclick="cambiarEstado('<?= $portada['idportada'] ?>')" style="border-radius: 2px; transform: scale(1.1); cursor: pointer;" <?= $portada['estado'] == 'A' ? 'checked' : '' ?>>

@@ -9,20 +9,18 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 
-$fechaDesde = $this->fechaDesde ?? null;
-$fechaHasta = $this->fechaHasta ?? null;
+$ids = $this->ids ?? null;
 $formato = $this->formato ?? 'xlsx';
 
-
+// Obtener suscripciones
 $objSuscripciones = new SuscripcionesModel();
-$suscripciones = $objSuscripciones->listarSuscripciones();
 
-
-if ($fechaDesde && $fechaHasta) {
-    $suscripciones = array_filter($suscripciones, function($suscripcion) use ($fechaDesde, $fechaHasta) {
-        $fecha = date('Y-m-d', strtotime($suscripcion['fecha_suscripcion']));
-        return $fecha >= $fechaDesde && $fecha <= $fechaHasta;
-    });
+// Si hay IDs específicos, filtrar por ellos; si no, obtener todos
+if ($ids && !empty($ids)) {
+    $idsArray = explode(',', $ids);
+    $suscripciones = $objSuscripciones->listarSuscripcionesPorIds($idsArray);
+} else {
+    $suscripciones = $objSuscripciones->listarSuscripciones();
 }
 
 
@@ -41,31 +39,28 @@ $spreadsheet->getProperties()
 
 
 $sheet->setCellValue('A1', 'REPORTE DE SUSCRIPCIONES');
-$sheet->mergeCells('A1:F1');
+$sheet->mergeCells('A1:J1');
 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
 $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
 
 $sheet->setCellValue('A2', 'Generado: ' . date('d/m/Y H:i:s'));
-if ($fechaDesde && $fechaHasta) {
-    $sheet->setCellValue('A3', 'Período: ' . date('d/m/Y', strtotime($fechaDesde)) . ' - ' . date('d/m/Y', strtotime($fechaHasta)));
-} else {
-    $sheet->setCellValue('A3', 'Período: Todos los registros');
-}
-$sheet->mergeCells('A2:F2');
-$sheet->mergeCells('A3:F3');
+$totalRegistros = count($suscripciones);
+$sheet->setCellValue('A3', "Total de registros: {$totalRegistros}");
+$sheet->mergeCells('A2:J2');
+$sheet->mergeCells('A3:J3');
 $sheet->getStyle('A2:A3')->getFont()->setItalic(true)->setSize(10);
 
 // Encabezados de columnas (fila 5)
-$headers = ['#', 'Nombre Completo', 'Correo Electrónico', 'Fecha Suscripción', 'Estado', 'IP Registro'];
+$headers = ['#', 'Nombres', 'Apellidos', 'Correo', 'Nivel', 'Grado', 'Asunto', 'Consulta', 'Fecha', 'Estado'];
 $column = 'A';
 foreach ($headers as $header) {
     $sheet->setCellValue($column . '5', $header);
     $column++;
 }
 
-
-$sheet->getStyle('A5:F5')->applyFromArray([
+// Estilos de encabezado
+$sheet->getStyle('A5:J5')->applyFromArray([
     'font' => [
         'bold' => true,
         'color' => ['rgb' => 'FFFFFF'],
@@ -91,33 +86,38 @@ $row = 6;
 $contador = 1;
 foreach ($suscripciones as $suscripcion) {
     $sheet->setCellValue('A' . $row, $contador);
-    $sheet->setCellValue('B' . $row, $suscripcion['nombre_completo']);
-    $sheet->setCellValue('C' . $row, $suscripcion['email']);
-    $sheet->setCellValue('D' . $row, date('d/m/Y H:i', strtotime($suscripcion['fecha_suscripcion'])));
-    $sheet->setCellValue('E' . $row, ucfirst($suscripcion['estado']));
-    $sheet->setCellValue('F' . $row, $suscripcion['ip_registro'] ?? 'N/A');
+    $sheet->setCellValue('B' . $row, $suscripcion['nombres'] ?? $suscripcion['nombre_completo'] ?? '-');
+    $sheet->setCellValue('C' . $row, $suscripcion['apellidos'] ?? '-');
+    $sheet->setCellValue('D' . $row, $suscripcion['correo'] ?? $suscripcion['email'] ?? '-');
+    $sheet->setCellValue('E' . $row, $suscripcion['nivel'] ?? '-');
+    $sheet->setCellValue('F' . $row, $suscripcion['grado'] ?? '-');
+    $sheet->setCellValue('G' . $row, $suscripcion['asunto'] ?? '-');
+    $sheet->setCellValue('H' . $row, $suscripcion['consulta'] ?? '-');
+    $sheet->setCellValue('I' . $row, date('d/m/Y H:i', strtotime($suscripcion['fecha_suscripcion'])));
+    $sheet->setCellValue('J' . $row, ucfirst($suscripcion['estado'] ?? 'activo'));
     
-
+    // Estilo alternado
     if ($contador % 2 == 0) {
-        $sheet->getStyle('A' . $row . ':F' . $row)->getFill()
+        $sheet->getStyle('A' . $row . ':J' . $row)->getFill()
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setRGB('F2F2F2');
     }
     
-
-    if ($suscripcion['estado'] == 'inactivo') {
-        $sheet->getStyle('E' . $row)->getFont()->getColor()->setRGB('FF0000');
+    // Color del estado
+    $estado = $suscripcion['estado'] ?? 'activo';
+    if ($estado == 'inactivo') {
+        $sheet->getStyle('J' . $row)->getFont()->getColor()->setRGB('FF0000');
     } else {
-        $sheet->getStyle('E' . $row)->getFont()->getColor()->setRGB('008000');
+        $sheet->getStyle('J' . $row)->getFont()->getColor()->setRGB('008000');
     }
     
     $row++;
     $contador++;
 }
 
-
+// Bordes finales
 if ($row > 6) {
-    $sheet->getStyle('A5:F' . ($row - 1))->applyFromArray([
+    $sheet->getStyle('A5:J' . ($row - 1))->applyFromArray([
         'borders' => [
             'allBorders' => [
                 'borderStyle' => Border::BORDER_THIN,
@@ -138,17 +138,23 @@ $sheet->getStyle('A' . $row . ':B' . $row)->getFill()
 
 // Ajustar ancho de columnas
 $sheet->getColumnDimension('A')->setWidth(8);
-$sheet->getColumnDimension('B')->setWidth(30);
-$sheet->getColumnDimension('C')->setWidth(35);
-$sheet->getColumnDimension('D')->setWidth(20);
-$sheet->getColumnDimension('E')->setWidth(12);
-$sheet->getColumnDimension('F')->setWidth(18);
+$sheet->getColumnDimension('B')->setWidth(20);  // Nombres
+$sheet->getColumnDimension('C')->setWidth(20);  // Apellidos
+$sheet->getColumnDimension('D')->setWidth(35);  // Correo
+$sheet->getColumnDimension('E')->setWidth(15);  // Nivel
+$sheet->getColumnDimension('F')->setWidth(10);  // Grado
+$sheet->getColumnDimension('G')->setWidth(15);  // Asunto
+$sheet->getColumnDimension('H')->setWidth(50);  // Consulta
+$sheet->getColumnDimension('I')->setWidth(18);  // Fecha
+$sheet->getColumnDimension('J')->setWidth(12);  // Estado
 
 // Centrar columnas específicas
 $sheet->getStyle('A6:A' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-$sheet->getStyle('D6:D' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-$sheet->getStyle('E6:E' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-$sheet->getStyle('F6:F' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+$sheet->getStyle('E6:G' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+$sheet->getStyle('I6:J' . ($row - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+// Ajustar texto en consulta
+$sheet->getStyle('H6:H' . ($row - 1))->getAlignment()->setWrapText(true);
 
 // Dar nombre a la hoja
 $sheet->setTitle('Suscripciones');

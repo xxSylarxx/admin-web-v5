@@ -202,6 +202,10 @@
         <div class="modal fade" id="modalCategorias" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Categorías de Publicaciones</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
                     <div class="modal-body">
                         <!-- <div class="input-group w-50 mb-4 mt-3 mx-auto">
                             <input type="text" class="form-control" id="txtcategoria" placeholder="Nombre de categoría">

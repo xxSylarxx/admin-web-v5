@@ -71,10 +71,36 @@
         #modalFiles .file-item-img {
             border-radius: 1px;
             overflow: hidden;
+            position: relative;
         }
 
         #modalFiles .file-item-img:hover {
             cursor: pointer;
+        }
+
+        #modalFiles .file-item-img .copy-link-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--color2);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+            font-size: 14px;
+        }
+
+        #modalFiles .file-item-img:hover .copy-link-btn {
+            opacity: 1;
+        }
+
+        #modalFiles .file-item-img .copy-link-btn:hover {
+            background: var(--color2);
+            transform: scale(1.05);
         }
 
 
@@ -121,8 +147,17 @@
         #cantFiles {
             font-size: 15px;
         }
+
         #modalFiles img.selected {
             filter: grayscale(250%);
+        }
+
+        #imgPortada {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
     </style>
 
@@ -155,7 +190,7 @@
                         <form id="formDatos" class="card-body" onkeypress="return event.keyCode != 13;">
                             <span><?= $this->translate('Titulo de galería') ?>:</span>
                             <input type="text" class="form-control mb-3 mt-1" name="titulo" id="titulo" value="<?= $this->galeria['titulo'] ?>" autocomplete="off">
-                            
+
                             <span><?= $this->translate('Categoría') ?>:</span>
                             <select class="form-select mt-1 mb-3" name="idcatg">
                                 <option value="">Sin categoría</option>
@@ -167,9 +202,10 @@
                                     <option value="<?= $categ['idcatg'] ?>" <?= $this->galeria['idcatg'] == $categ['idcatg'] ? 'selected' : '' ?>><?= $categ['nombre'] ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            
-                            <span><?= $this->translate('Portada') ?>:</span>
-                            <input type="text" class="form-control mb-3 mt-1" name="portada" value="<?= $this->galeria['portada'] ?>" autocomplete="off">
+
+                            <span><?= $this->translate('Imagen de la Portada') ?>:</span>
+                            <input type="text" class="form-control mt-1 mb-2" name="portada" id="portada" value="<?= $this->galeria['portada'] ?>" @input="changePortada($event.target.value)" autocomplete="off" placeholder="URL de imagen de portada">
+                            <img class="my-2" :src="portadaPreview" @error="portadaPreview = 'https://placehold.co/320x220'" id="imgPortada">
                             <span><?= $this->translate('Detalle') ?>:</span>
                             <textarea class="form-control mt-1 mb-3" rows="2" name="detalle" placeholder="Opcional"><?= $this->galeria['detalle'] ?></textarea>
                             <span><?= $this->translate('Modo de galería') ?>:</span>
@@ -218,11 +254,11 @@
                     <div class="modal-body pt-0">
                         <div class="row px-2 pb-1" v-if="modoFiles == 'I'">
                             <div class="col-sm-2" v-for="(item, index) in listFiles" :key="index" style="padding: 2px;">
-
                                 <div class="file-item-img">
-
-                                <img :src="item.path" :id="'img' + item.id" :title="item.name" @click="agregarItem(item.path, 'I', item.id)">
-
+                                    <a href="javascript:void(0)" class="copy-link-btn" @click.stop="copiarEnlace(item.path, $event)" title="Copiar enlace">
+                                        <i class="fas fa-copy"></i>
+                                    </a>
+                                    <img :src="item.path" :id="'img' + item.id" :title="item.name" @click="agregarItem(item.path, 'I', item.id)">
                                 </div>
                             </div>
                             <div class="col-sm-2" style="padding: 2px;">
@@ -264,6 +300,7 @@
                     listGallery: JSON.parse(`<?= $this->galeria['cuerpo'] ?>`),
                     modoFiles: 'I',
                     totalFiles: 0,
+                    portadaPreview: '<?= !empty($this->galeria['portada']) ? $this->galeria['portada'] : 'https://placehold.co/320x220' ?>',
                 }
             },
             created() {
@@ -416,15 +453,98 @@
                     });
                 },
                 saludo(item) {
-                    
-                        
-                       alert("la posicion de la imagen es " + item);
-                    
+                    alert("la posicion de la imagen es " + item);
+                },
+                copiarEnlace(path, event) {
+                    if (event) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                    }
+                    let link = path;
+                    if (!path.startsWith('http://') && !path.startsWith('https://')) {
+                        if (!path.startsWith('/')) {
+                            path = '/' + path;
+                        }
+                        link = location.origin + path;
+                    }
+                    // Buscar el modal
+                    let modal = document.getElementById('modalFiles');
+                    // Crear el input temporal dentro del modal
+                    let aux = document.createElement("input");
+                    aux.setAttribute("value", link);
+                    modal.appendChild(aux);
+                    aux.focus();
+                    aux.select();
+                    let copied = false;
+                    try {
+                        copied = document.execCommand("copy");
+                    } catch (e) {
+                        copied = false;
+                    }
+                    aux.remove();
+                    if (copied) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: "<?= $this->translate('Enlace copiado al portapapeles'); ?>",
+                            toast: true,
+                            position: 'top-end',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        this.mostrarError(link);
+                    }
+                },
+                mostrarError(link) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: "<?= $this->translate('No se pudo copiar automáticamente'); ?>",
+                        html: `<?= $this->translate('Por favor, copia manualmente este enlace:'); ?><br>
+                       <input type="text" value="${link}" id="enlaceManual" class="form-control mt-2" readonly>
+                       <button class="btn btn-primary mt-2" onclick="copiarManual()"><?= $this->translate('Copiar'); ?></button>`,
+                        showConfirmButton: false,
+                        showCloseButton: true
+                    });
+                },
+                changePortada(value) {
+                    if (!value || value.trim() === '') {
+                        this.portadaPreview = 'https://placehold.co/320x220?text=Vista+Previa';
+                        return;
+                    }
+                    if (value.substring(0, 19) == 'https://img.youtube') {
+                        this.portadaPreview = value;
+                    } else {
+                        let videoId = value.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
+                        if (videoId != null) {
+                            let thumb = `https://img.youtube.com/vi/${videoId[1]}/hqdefault.jpg`;
+                            document.getElementById('portada').value = thumb;
+                            this.portadaPreview = thumb;
+                        } else {
+                            this.portadaPreview = value;
+                        }
+                    }
                 }
-
-
             }
         });
+
+        function copiarManual() {
+            const input = document.getElementById('enlaceManual');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                Swal.fire({
+                    icon: 'success',
+                    title: "<?= $this->translate('¡Copiado!'); ?>",
+                    toast: true,
+                    position: 'top-end',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } catch (err) {
+                console.error('Error al copiar manualmente: ', err);
+            }
+        }
 
         setTimeout(() => {
             let loader = document.getElementById('preloader');

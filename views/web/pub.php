@@ -127,7 +127,6 @@ if (isset($URI[1])) {
         #cuerpo-pub td {
             border: solid 1px black !important;
         }
-
     </style>
 
     <div class="container-fluid portada">
@@ -203,7 +202,67 @@ if (isset($URI[1])) {
 
     <br><br><br>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentHtml = document.querySelector('#cuerpo-pub');
 
+            if (contentHtml) {
+                const iframes = contentHtml.querySelectorAll('iframe');
+                let pdfCounter = 0; 
+
+                iframes.forEach(iframe => {
+                    const initialSrc = iframe.src;
+
+                    if (initialSrc && initialSrc.toLowerCase().includes('.pdf')) {
+                        pdfCounter++;
+                        const pdfJsViewerUrl = "/lib/pdfjs/web/viewer.html?file=";
+                        const newSrc = pdfJsViewerUrl + encodeURIComponent(initialSrc);
+
+                        iframe.id = 'pdfViewer' + pdfCounter; 
+                        iframe.src = newSrc;
+                        iframe.frameBorder = "0";
+
+                        let width = iframe.style.width || iframe.getAttribute('width');
+
+                        if (width) {
+                            const widthInPixels = parseInt(width);
+                            if (!isNaN(widthInPixels)) {
+                                const containerWidth = contentHtml.offsetWidth;
+                                const percentage = (widthInPixels / containerWidth) * 100;
+
+
+                                if (percentage >= 90) {
+                                    iframe.style.width = "100%";
+                                } else if (percentage >= 70) {
+                                    iframe.style.width = "80%";
+                                } else if (percentage >= 40) {
+                                    iframe.style.width = "50%";
+                                }
+
+                            }
+                        } else {
+
+                            iframe.style.width = "100%";
+                        }
+
+                        if (!iframe.style.height && !iframe.getAttribute('height')) {
+                            iframe.style.height = "600px";
+                        }
+
+                        const parent = iframe.parentElement;
+                        if (parent) {
+                            const parentAlign = window.getComputedStyle(parent).textAlign
+                            if (parentAlign === 'center' || iframe.getAttribute('align') === 'center') {
+                                iframe.style.display = 'block';
+                                iframe.style.margin = '0 auto';
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 
 </html>
