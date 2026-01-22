@@ -28,7 +28,7 @@ define("FB_REDIRECT_URL", PATH_WEB . '/callback.php');
 
 // base de datos
 define("BD_HOST", "localhost");
-define("BD_NAME", "admin_v3");
+define("BD_NAME", "admin_v5");
 define("BD_USER", "root");
 define("BD_PASS", "");
 define("BD_PORT", "3307");
