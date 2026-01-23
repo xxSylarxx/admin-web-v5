@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 22-01-2026 a las 16:15:07
+-- Tiempo de generación: 23-01-2026 a las 20:52:06
 -- Versión del servidor: 11.5.2-MariaDB
 -- Versión de PHP: 7.4.33
 
@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS `suscripciones` (
   UNIQUE KEY `idx_correo_unique` (`correo`),
   KEY `idx_fecha_suscripcion` (`fecha_suscripcion`),
   KEY `idx_estado` (`estado`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `suscripciones`
@@ -318,7 +318,8 @@ CREATE TABLE IF NOT EXISTS `suscripciones` (
 
 INSERT INTO `suscripciones` (`idsuscripcion`, `nombres`, `apellidos`, `correo`, `nivel`, `grado`, `consulta`, `asunto`, `nombre_completo`, `email`, `fecha_suscripcion`, `estado`, `ip_registro`, `fecha_baja`) VALUES
 (4, 'Axel', 'Molina', 'demo@demo.com', 'Primaria', '2do grado', 'sadsadasdsadasdasdasdasdasdasd', 'informes', 'Axel Molina', 'demo@demo.com', '2026-01-22 09:59:45', 'activo', '::1', NULL),
-(5, 'Demo', 'demo', 'demo@demsssso.com', 'Inicial', '3 años', 'sadasdasdasdasdasdsadasdasda', 'informes', 'Demo demo', 'demo@demsssso.com', '2026-01-22 10:04:07', 'activo', '::1', NULL);
+(5, 'Demo', 'demo', 'demo@demsssso.com', 'Inicial', '3 años', 'sadasdasdasdasdasdsadasdasda', 'informes', 'Demo demo', 'demo@demsssso.com', '2026-01-22 10:04:07', 'activo', '::1', NULL),
+(6, 'ricardo', 'lujuria', 'luju@lujuria.com', 'Secundaria', '4to año', 'sdsadsadasdsadasdas', 'informes', 'ricardo lujuria', 'luju@lujuria.com', '2026-01-22 11:18:57', 'activo', '::1', NULL);
 
 -- --------------------------------------------------------
 
