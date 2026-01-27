@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 23-01-2026 a las 20:52:06
+-- Tiempo de generación: 27-01-2026 a las 14:11:54
 -- Versión del servidor: 11.5.2-MariaDB
 -- Versión de PHP: 7.4.33
 
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `banner` (
 --
 
 INSERT INTO `banner` (`id`, `tipo`, `cuerpo`, `opciones`, `estado`, `trial646`) VALUES
-(1, 'slider', '[{\"imagen\":\"http://admin-web-version3.com/public/img/banner/05.jpg\",\"enlace\":null,\"titulo\":\"EDUCACIÓN INTEGRAL\",\"detalle\":\"Proporcionamos una educación integral que engloba todas las áreas<br>con base en un enfoque holístico, que promueve su desarrollo académico,<br>emocional, ético, social y físico.\"},{\"imagen\":\"http://admin-web-version3.com/public/img/banner/06.jpg\",\"enlace\":null,\"titulo\":\"\",\"detalle\":\"\"}]', '{\"fade\":true,\"dimensionar\":true,\"height\":\"100\",\"indicadores\":true,\"flechas\":true}', 'S', 'T'),
+(1, 'slider', '[{\"imagen\":\"http://admin-web-version5.com/public/img/banner/05.jpg\",\"enlace\":null,\"titulo\":\"EDUCACIÓN INTEGRAL\",\"detalle\":\"Proporcionamos una educación integral que engloba todas las áreas<br>con base en un enfoque holístico, que promueve su desarrollo académico,<br>emocional, ético, social y físico.\"},{\"imagen\":\"http://admin-web-version5.com/public/img/banner/06.jpg\",\"enlace\":null,\"titulo\":\"\",\"detalle\":\"\"}]', '{\"fade\":true,\"dimensionar\":true,\"height\":\"100\",\"indicadores\":true,\"flechas\":true}', 'S', 'T'),
 (2, 'video', 'https://www.youtube.com/embed/aphaMYrGH1o', '{\"controls\":true,\"autoplay\":false,\"muted\":false,\"dimensionar\":false,\"youtube\":true}', 'N', 'T');
 
 -- --------------------------------------------------------
@@ -189,8 +189,8 @@ CREATE TABLE IF NOT EXISTS `galeria` (
 --
 
 INSERT INTO `galeria` (`idgaleria`, `idcatg`, `titulo`, `detalle`, `ncolum`, `cuerpo`, `modo`, `portada`, `fecreg`, `visible`, `trial656`) VALUES
-(13, 1, 'FIESTAS PATRIAS', 'asdsadasda', 1, '[{\"id\":65198,\"tipo\":\"I\",\"content\":\"/public/img/galeria/tpm.png\",\"portada\":\"/public/img/galeria/tpm.png\"}]', 'A', 'http://admin-web-version3.com/public/img/galeria/emergent.jpg', '2025-06-18 16:21:14', 'S', NULL),
-(19, 3, 'DEMO2', 'OTRO DETALLE', 4, '[{\"id\":18907,\"tipo\":\"I\",\"content\":\"/public/img/galeria/admision.jpg\",\"portada\":\"/public/img/galeria/admision.jpg\"},{\"id\":96749,\"tipo\":\"I\",\"content\":\"/public/img/galeria/emergent.jpg\",\"portada\":\"/public/img/galeria/emergent.jpg\"},{\"id\":55081,\"tipo\":\"I\",\"content\":\"/public/img/galeria/ticket_122611_250124114142.jpg\",\"portada\":\"/public/img/galeria/ticket_122611_250124114142.jpg\"},{\"id\":95999,\"tipo\":\"I\",\"content\":\"/public/img/galeria/03.jpg\",\"portada\":\"/public/img/galeria/03.jpg\"},{\"id\":97965,\"tipo\":\"I\",\"content\":\"/public/img/galeria/04.jpg\",\"portada\":\"/public/img/galeria/04.jpg\"},{\"id\":71558,\"tipo\":\"I\",\"content\":\"/public/img/galeria/06.jpg\",\"portada\":\"/public/img/galeria/06.jpg\"},{\"id\":28873,\"tipo\":\"I\",\"content\":\"/public/img/galeria/05.jpg\",\"portada\":\"/public/img/galeria/05.jpg\"},{\"id\":23289,\"tipo\":\"I\",\"content\":\"/public/img/galeria/07.jpg\",\"portada\":\"/public/img/galeria/07.jpg\"}]', 'A', 'http://admin-web-version3.com/public/img/galeria/01.jpg', '2026-01-21 17:47:56', 'S', NULL);
+(13, 1, 'FIESTAS PATRIAS', 'asdsadasda', 1, '[{\"id\":65198,\"tipo\":\"I\",\"content\":\"/public/img/galeria/tpm.png\",\"portada\":\"/public/img/galeria/tpm.png\"}]', 'A', 'http://admin-web-version5.com/public/img/galeria/emergent.jpg', '2025-06-18 16:21:14', 'S', NULL),
+(19, 3, 'DEMO2', 'OTRO DETALLE', 4, '[{\"id\":18907,\"tipo\":\"I\",\"content\":\"/public/img/galeria/admision.jpg\",\"portada\":\"/public/img/galeria/admision.jpg\"},{\"id\":96749,\"tipo\":\"I\",\"content\":\"/public/img/galeria/emergent.jpg\",\"portada\":\"/public/img/galeria/emergent.jpg\"},{\"id\":55081,\"tipo\":\"I\",\"content\":\"/public/img/galeria/ticket_122611_250124114142.jpg\",\"portada\":\"/public/img/galeria/ticket_122611_250124114142.jpg\"},{\"id\":95999,\"tipo\":\"I\",\"content\":\"/public/img/galeria/03.jpg\",\"portada\":\"/public/img/galeria/03.jpg\"},{\"id\":97965,\"tipo\":\"I\",\"content\":\"/public/img/galeria/04.jpg\",\"portada\":\"/public/img/galeria/04.jpg\"},{\"id\":71558,\"tipo\":\"I\",\"content\":\"/public/img/galeria/06.jpg\",\"portada\":\"/public/img/galeria/06.jpg\"},{\"id\":28873,\"tipo\":\"I\",\"content\":\"/public/img/galeria/05.jpg\",\"portada\":\"/public/img/galeria/05.jpg\"},{\"id\":23289,\"tipo\":\"I\",\"content\":\"/public/img/galeria/07.jpg\",\"portada\":\"/public/img/galeria/07.jpg\"}]', 'A', 'http://admin-web-version5.com/public/img/galeria/01.jpg', '2026-01-21 17:47:56', 'S', NULL);
 
 -- --------------------------------------------------------
 
@@ -229,27 +229,27 @@ INSERT INTO `popup` (`id`, `titulo`, `tipo`, `cuerpo`, `header`, `margen`, `slid
 DROP TABLE IF EXISTS `portadas`;
 CREATE TABLE IF NOT EXISTS `portadas` (
   `idportada` int(11) NOT NULL AUTO_INCREMENT,
-  `pagina` varchar(100) NOT NULL COMMENT 'Identificador de la página (ej: nosotros, servicios)',
-  `nombre` varchar(150) NOT NULL COMMENT 'Nombre descriptivo de la página',
-  `imagen` varchar(300) DEFAULT NULL COMMENT 'URL de la imagen de portada',
-  `titulo` varchar(200) DEFAULT NULL COMMENT 'Título que aparece en la portada',
-  `subtitulo` varchar(250) DEFAULT NULL COMMENT 'Subtítulo o descripción',
+  `pagina` varchar(100) NOT NULL COMMENT 'Identificador de la página',
+  `nombre` varchar(150) NOT NULL COMMENT 'Nombre descriptivo',
+  `imagen` varchar(300) DEFAULT NULL COMMENT 'URL de imagen',
+  `titulo` varchar(200) DEFAULT NULL COMMENT 'Título de portada',
+  `subtitulo` varchar(250) DEFAULT NULL COMMENT 'Subtítulo',
   `estado` char(1) DEFAULT 'A' COMMENT 'A=Activo, I=Inactivo',
-  `fecreg` datetime DEFAULT current_timestamp(),
-  `fecact` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `fecreg` timestamp NULL DEFAULT current_timestamp(),
+  `fecact` datetime DEFAULT NULL,
   PRIMARY KEY (`idportada`),
   UNIQUE KEY `idx_pagina` (`pagina`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `portadas`
 --
 
 INSERT INTO `portadas` (`idportada`, `pagina`, `nombre`, `imagen`, `titulo`, `subtitulo`, `estado`, `fecreg`, `fecact`) VALUES
-(1, 'nosotros', 'Nosotros', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200', 'Nosotros', 'Conoce más sobre nuestra institución', 'A', '2026-01-14 16:21:14', '2026-01-21 09:14:57'),
-(2, 'servicios', 'Servicios', 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200', 'Nuestros Servicios', 'Soluciones profesionales adaptadas a tus necesidades', 'A', '2026-01-14 16:21:14', '2026-01-16 16:33:49'),
-(3, 'admision', 'Admision', '/public/img/portadas/admision.jpg', 'Admisión 2027', 'Conocerás los requisitos de nuestro proceso de Admisión 2027', 'A', '2026-01-14 16:21:14', '2026-01-21 11:49:02'),
-(6, 'galerias', 'Galerías', '/public/img/portadas/admision.jpg', 'GALERÍAS', 'Revive nuestros mejores momentos', 'A', '2026-01-19 10:11:54', '2026-01-19 12:22:56');
+(1, 'nosotros', 'Nosotros', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200', 'Nosotros', 'Conoce más sobre nuestra institución', 'A', '2026-01-14 21:21:14', '2026-01-21 09:14:57'),
+(2, 'servicios', 'Servicios', 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200', 'Nuestros Servicios', 'Soluciones profesionales adaptadas a tus necesidades', 'A', '2026-01-14 21:21:14', '2026-01-16 16:33:49'),
+(3, 'admision', 'Admision', '/public/img/portadas/admision.jpg', 'Admisión 2027', 'Conocerás los requisitos de nuestro proceso de Admisión 2027', 'A', '2026-01-14 21:21:14', '2026-01-21 11:49:02'),
+(6, 'galerias', 'Galerías', '/public/img/portadas/admision.jpg', 'GALERÍAS', 'Revive nuestros mejores momentos', 'A', '2026-01-19 15:11:54', '2026-01-19 12:22:56');
 
 -- --------------------------------------------------------
 
@@ -279,10 +279,10 @@ CREATE TABLE IF NOT EXISTS `publicacion` (
 
 INSERT INTO `publicacion` (`idpub`, `idcatg`, `titulo`, `tagname`, `portada`, `detalle`, `cuerpo`, `fecpub`, `fecreg`, `visible`, `trial656`) VALUES
 (13, 1, 'Últimas Vacantes 2025', 'ultimas-vacantes-2025', '', '', '<div><iframe style=\"border: none; overflow: hidden; width: 692px; height: 346px;\" src=\"https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fcolegiomariagoretticomas%2Fposts%2Fpfbid02ewnHW9G5bJMkgD2EizHuZofos3tUeuCJjcTsARPqb3rt3DNn4XhEK9dSDPFmHjMfl&amp;show_text=true&amp;width=500\" width=\"100%\" height=\"200\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\"allowfullscreen\"></iframe></div>', '2025-03-04 15:16:00', NULL, 'S', NULL),
-(16, 1, 'DEMO1', 'demo1', 'http://admin-web-version3.com/public/img/galeria/ticket_122611_250124114142.jpg', 'SDSADAS', '<div>SDFSDFSD</div>', '2026-01-19 09:54:00', NULL, 'S', NULL),
+(16, 1, 'DEMO1', 'demo1', 'http://admin-web-version5.com/public/img/galeria/ticket_122611_250124114142.jpg', 'SDSADAS', '<div>SDFSDFSD</div>', '2026-01-19 09:54:00', NULL, 'S', NULL),
 (14, 1, 'Feliz día de la mujer', 'feliz-dia-de-la-mujer', 'dddd', 'Celebramos el día de la mujer.', '<div><iframe style=\"border: none; overflow: hidden; width: 820px; height: 410px;\" src=\"https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fcolegiomariagoretticomas%2Fposts%2Fpfbid0zNPoz61J5uMzPkFoydD1V8oKjEUBn76gbcPm7Rd1sZfqNHAuXzacHo6Z4uAuMzSQl&amp;show_text=true&amp;width=500\" width=\"100%\" height=\"600\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\"allowfullscreen\"></iframe></div>', '2025-03-08 17:02:00', NULL, 'S', NULL),
 (15, 1, 'Bienvenidos al inicio de clases 2025', 'bienvenidos-al-inicio-de-clases-2025', '', 'Inicio de clases 2025', '<div><iframe style=\"border: none; overflow: hidden; width: 896px; height: 448px;\" src=\"https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fcolegiomariagoretticomas%2Fposts%2Fpfbid0zvPj9U9G6d3bKDiW49YJCybTzGa9qtTCvJCj7r17gJyuDAhqdhNRSzFBCgw75y1Fl&amp;show_text=true&amp;width=500\" width=\"100%\" height=\"600\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\"allowfullscreen\"></iframe></div>', '2025-07-10 17:06:00', NULL, 'S', NULL),
-(17, 1, 'pub demo', 'pub-demo', 'http://admin-web-version3.com/public/img/galeria/05.jpg', 'demo', '<div style=\"text-align: center;\"><img src=\"../../../public/img/galeria/emergent.jpg\" width=\"85%\" /></div>\r\n<div>&nbsp;</div>\r\n<div style=\"text-align: center;\"><iframe src=\"https://www.youtube.com/embed/iZPyq2aZpmw?si=6FpBqrQd-J5WP4VD\" width=\"560\" height=\"314\" allowfullscreen=\"allowfullscreen\"></iframe></div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div style=\"text-align: center;\"><iframe src=\"../../../public/files/compromiso-padres.pdf\" width=\"100%\" height=\"720\" frameborder=\"0\"></iframe></div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\"><iframe style=\"border: none; overflow: hidden;\" src=\"https://www.facebook.com/plugins/video.php?height=314&amp;href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1595634508151407%2F&amp;show_text=false&amp;width=560&amp;t=0\" width=\"560\" height=\"314\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\"allowfullscreen\"></iframe></div>', '2026-01-21 08:44:00', NULL, 'S', NULL);
+(17, 1, 'pub demo', 'pub-demo', 'http://admin-web-version5.com/public/img/galeria/05.jpg', 'demo', '<div style=\"text-align: center;\"><img src=\"../../../public/img/galeria/emergent.jpg\" width=\"85%\" /></div>\r\n<div>&nbsp;</div>\r\n<div style=\"text-align: center;\"><iframe src=\"https://www.youtube.com/embed/iZPyq2aZpmw?si=6FpBqrQd-J5WP4VD\" width=\"560\" height=\"314\" allowfullscreen=\"allowfullscreen\"></iframe></div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div style=\"text-align: center;\"><iframe src=\"../../../public/files/compromiso-padres.pdf\" width=\"100%\" height=\"720\" frameborder=\"0\"></iframe></div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\"><iframe style=\"border: none; overflow: hidden;\" src=\"https://www.facebook.com/plugins/video.php?height=314&amp;href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1595634508151407%2F&amp;show_text=false&amp;width=560&amp;t=0\" width=\"560\" height=\"314\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\"allowfullscreen\"></iframe></div>', '2026-01-21 08:44:00', NULL, 'S', NULL);
 
 -- --------------------------------------------------------
 

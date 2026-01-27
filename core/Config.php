@@ -1,7 +1,7 @@
 <?php
 
 // sistema
-define("PATH_WEB", "http://admin-web-version3.com");
+define("PATH_WEB", "http://admin-web-version5.com");
 define("PATH_ROOT", dirname(__DIR__));
 define("PATH_PUBLIC", PATH_WEB . "/public");
 
