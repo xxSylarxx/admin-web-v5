@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 27-01-2026 a las 14:11:54
+-- Tiempo de generación: 27-01-2026 a las 14:55:05
 -- Versión del servidor: 11.5.2-MariaDB
 -- Versión de PHP: 7.4.33
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `admin_v3`
+-- Base de datos: `admin_v5`
 --
 
 -- --------------------------------------------------------
@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS `suscripciones` (
   `asunto` varchar(50) DEFAULT 'informes',
   `nombre_completo` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
-  `fecha_suscripcion` datetime NOT NULL DEFAULT current_timestamp(),
+  `fecha_suscripcion` timestamp NULL DEFAULT current_timestamp(),
   `estado` enum('activo','inactivo') NOT NULL DEFAULT 'activo',
   `ip_registro` varchar(45) DEFAULT NULL,
   `fecha_baja` datetime DEFAULT NULL,
@@ -317,9 +317,9 @@ CREATE TABLE IF NOT EXISTS `suscripciones` (
 --
 
 INSERT INTO `suscripciones` (`idsuscripcion`, `nombres`, `apellidos`, `correo`, `nivel`, `grado`, `consulta`, `asunto`, `nombre_completo`, `email`, `fecha_suscripcion`, `estado`, `ip_registro`, `fecha_baja`) VALUES
-(4, 'Axel', 'Molina', 'demo@demo.com', 'Primaria', '2do grado', 'sadsadasdsadasdasdasdasdasdasd', 'informes', 'Axel Molina', 'demo@demo.com', '2026-01-22 09:59:45', 'activo', '::1', NULL),
-(5, 'Demo', 'demo', 'demo@demsssso.com', 'Inicial', '3 años', 'sadasdasdasdasdasdsadasdasda', 'informes', 'Demo demo', 'demo@demsssso.com', '2026-01-22 10:04:07', 'activo', '::1', NULL),
-(6, 'ricardo', 'lujuria', 'luju@lujuria.com', 'Secundaria', '4to año', 'sdsadsadasdsadasdas', 'informes', 'ricardo lujuria', 'luju@lujuria.com', '2026-01-22 11:18:57', 'activo', '::1', NULL);
+(4, 'Axel', 'Molina', 'demo@demo.com', 'Primaria', '2do grado', 'sadsadasdsadasdasdasdasdasdasd', 'informes', 'Axel Molina', 'demo@demo.com', '2026-01-22 14:59:45', 'activo', '::1', NULL),
+(5, 'Demo', 'demo', 'demo@demsssso.com', 'Inicial', '3 años', 'sadasdasdasdasdasdsadasdasda', 'informes', 'Demo demo', 'demo@demsssso.com', '2026-01-22 15:04:07', 'activo', '::1', NULL),
+(6, 'ricardo', 'lujuria', 'luju@lujuria.com', 'Secundaria', '4to año', 'sdsadsadasdsadasdas', 'informes', 'ricardo lujuria', 'luju@lujuria.com', '2026-01-22 16:18:57', 'activo', '::1', NULL);
 
 -- --------------------------------------------------------
 
