@@ -27,6 +27,7 @@ try {
     $mail->Port       = 25;
 
     $mail->CharSet = 'UTF-8';
+	$mail->Encoding = 'base64';
     if (empty($_POST['nombres']) || empty($_POST['apellidos']) || empty($_POST['correo']) || empty($_POST['telefono']) || empty($_POST['mensaje'])) {
         echo 'Por favor, completa todos los campos del formulario.';
         exit; // Detén la ejecución si falta algún campo
