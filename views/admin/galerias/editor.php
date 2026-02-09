@@ -72,6 +72,8 @@
             border-radius: 1px;
             overflow: hidden;
             position: relative;
+            will-change: auto;
+            contain: layout style paint;
         }
 
         #modalFiles .file-item-img:hover {
@@ -89,9 +91,11 @@
             border-radius: 4px;
             cursor: pointer;
             opacity: 0;
-            transition: opacity 0.2s;
+            transition: opacity 0.15s ease-out;
             z-index: 10;
             font-size: 14px;
+            transform: translateZ(0);
+            will-change: opacity;
         }
 
         #modalFiles .file-item-img:hover .copy-link-btn {
@@ -100,7 +104,6 @@
 
         #modalFiles .file-item-img .copy-link-btn:hover {
             background: var(--color2);
-            transform: scale(1.05);
         }
 
 
@@ -110,7 +113,7 @@
         }
 
         #modalFiles .file-item-img:hover img {
-            transform: scale(1.12);
+            transform: scale3d(1.08, 1.08, 1);
         }
 
         #modalFiles .file-item-img img {
@@ -118,7 +121,26 @@
             height: 120px;
             object-fit: cover;
             border-radius: 1px;
-            transition: transform .2s ease-in-out;
+            transition: transform 0.15s ease-out;
+            background: #f0f0f0;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        #modalFiles .file-item-img img[data-src] {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         #modalFiles div.file-item {
@@ -146,6 +168,29 @@
 
         #cantFiles {
             font-size: 15px;
+        }
+
+        /* Optimización de scroll performance */
+        #modalFiles .modal-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            transform: translateZ(0);
+            will-change: scroll-position;
+        }
+
+        #modalFiles .row {
+            contain: layout style;
+        }
+
+        #modalFiles .col-sm-2,
+        #modalFiles .col-sm-3 {
+            contain: layout style paint;
+        }
+
+        img.selected {
+            border: 3px solid var(--color3);
+            box-shadow: 0 0 10px var(--color3);
         }
 
         #modalFiles img.selected {
@@ -258,7 +303,7 @@
                                     <a href="javascript:void(0)" class="copy-link-btn" @click.stop="copiarEnlace(item.path, $event)" title="Copiar enlace">
                                         <i class="fas fa-copy"></i>
                                     </a>
-                                    <img :src="item.path" :id="'img' + item.id" :title="item.name" @click="agregarItem(item.path, 'I', item.id)">
+                                    <img :data-src="index >= 12 ? item.path : null" :src="index < 12 ? item.path : 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3C/svg%3E'" :id="'img' + item.id" :title="item.name" @click="agregarItem(item.path, 'I', item.id)" loading="lazy" class="lazy-img">
                                 </div>
                             </div>
                             <div class="col-sm-2" style="padding: 2px;">
@@ -292,6 +337,51 @@
 
 
     <script>
+        // Intersection Observer para lazy loading (fuera de Vue)
+        let imageObserver = null;
+
+        function initLazyLoading() {
+            if (imageObserver) {
+                imageObserver.disconnect();
+            }
+
+            const lazyImages = document.querySelectorAll('img[data-src]');
+
+            if (lazyImages.length === 0) {
+                return;
+            }
+
+            if ('IntersectionObserver' in window) {
+                imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            observer.unobserve(img);
+
+                            const remainingImages = document.querySelectorAll('img[data-src]');
+                            if (remainingImages.length === 0) {
+                                observer.disconnect();
+                                imageObserver = null;
+                            }
+                        }
+                    });
+                }, {
+                    root: document.querySelector('#modalFiles .modal-body'),
+                    rootMargin: '150px',
+                    threshold: 0.01
+                });
+
+                lazyImages.forEach(img => imageObserver.observe(img));
+            } else {
+                lazyImages.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                });
+            }
+        }
+
         new Vue({
             el: '#app',
             data() {
@@ -305,6 +395,14 @@
             },
             created() {
                 this.listFilesJson('img/galeria/');
+            },
+            updated() {
+                // Inicializar lazy loading después de que Vue actualice el DOM
+                this.$nextTick(() => {
+                    if (this.modoFiles === 'I') {
+                        initLazyLoading();
+                    }
+                });
             },
             watch: {
                 modoFiles: function(value) {

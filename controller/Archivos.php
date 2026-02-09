@@ -32,7 +32,7 @@ class Archivos extends Controller
                 echo json_encode($listArchivos, JSON_UNESCAPED_UNICODE);
             } else {
                 $iniF = $params[0];
-                $maxF = $iniF + 25;
+                $maxF = $iniF + 12; // Reducido de 25 a 12 para mejorar rendimiento
                 $totalF = count($listArchivos);
                 $listFiles = array();
                 if ($iniF < $totalF) {

@@ -36,17 +36,19 @@
             border: 1px solid rgb(222, 222, 222);
             border-radius: 5px;
             overflow: hidden;
-            transition: all .3s;
+            transition: all 0.18s ease-out;
+            will-change: auto;
+            contain: layout style paint;
         }
 
         #modalFiles .file-item:hover {
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transform: translateY(-3px);
+            transform: translateY(-3px) translateZ(0);
         }
 
         #modalFiles .file-item:hover img {
-            transform: scale(1.1);
+            transform: scale3d(1.06, 1.06, 1);
         }
 
         #modalFiles .file-item img {
@@ -54,7 +56,26 @@
             height: 150px;
             object-fit: cover;
             border-radius: 5px;
-            transition: transform .3s ease-in-out;
+            transition: transform 0.18s ease-out;
+            background: #f0f0f0;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        #modalFiles .file-item img[data-src] {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         #modalFiles .file-item.selected {
@@ -66,14 +87,32 @@
             height: 150px;
             background-color: rgb(230, 230, 230);
             border-radius: 5px;
-            transition: all .3s;
+            transition: all 0.18s ease-out;
             cursor: pointer;
+            transform: translateZ(0);
         }
 
         #modalFiles .file-item-end:hover {
             background-color: rgb(200, 200, 200);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transform: translateY(-3px);
+            transform: translateY(-3px) translateZ(0);
+        }
+
+        /* Optimización de scroll performance */
+        #modalFiles .modal-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            transform: translateZ(0);
+            will-change: scroll-position;
+        }
+
+        #modalFiles .row {
+            contain: layout style;
+        }
+
+        #modalFiles .col-sm-3 {
+            contain: layout style paint;
         }
     </style>
 
@@ -102,7 +141,7 @@
                                     <label class="form-label fw-bold">Identificador de Página <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="pagina"
                                         value="<?= $this->dataPortada['pagina'] ?>"
-                                        placeholder="ej: nosotros, servicios, contacto" required >
+                                        placeholder="ej: nosotros, servicios, contacto" required>
                                     <!-- <small class="text-muted">Sin espacios, solo letras minúsculas. Debe coincidir con el archivo PHP</small> -->
                                 </div>
 
@@ -110,7 +149,7 @@
                                     <label class="form-label fw-bold">Nombre Descriptivo <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="nombre"
                                         value="<?= $this->dataPortada['nombre'] ?>"
-                                        placeholder="ej: Nosotros, Servicios" required >
+                                        placeholder="ej: Nosotros, Servicios" required>
                                     <!-- <small class="text-muted">Nombre que aparece en el admin</small> -->
                                 </div>
                             </div>
@@ -243,7 +282,7 @@
             });
             element.classList.add('selected');
 
-            
+
             setTimeout(() => {
                 bootstrap.Modal.getInstance(document.getElementById('modalFiles')).hide();
             }, 300);
@@ -282,44 +321,54 @@
             data.append('path', path);
             const ruta = '/admin/archivos/listar/' + total;
             fetch(ruta, {
-                method: 'POST',
-                body: data
-            }).then(res => res.text())
-            .then(res => {
-                try {
-                    const result = JSON.parse(res);
-                    if (result.files && result.files.length > 0) {
-                        listFiles = listFiles.concat(result.files);
-                        cantFiles.innerText = listFiles.length;
-                        totalFiles.innerText = result.total;
-                        listFilesHTML();
-                    } else {
+                    method: 'POST',
+                    body: data
+                }).then(res => res.text())
+                .then(res => {
+                    try {
+                        const result = JSON.parse(res);
+                        if (result.files && result.files.length > 0) {
+                            listFiles = listFiles.concat(result.files);
+                            cantFiles.innerText = listFiles.length;
+                            totalFiles.innerText = result.total;
+                            listFilesHTML();
+                        } else {
+                            Swal.fire({
+                                icon: 'info',
+                                text: 'No hay más archivos para mostrar',
+                                timer: 2000
+                            });
+                        }
+                    } catch (error) {
                         Swal.fire({
-                            icon: 'info',
-                            text: 'No hay más archivos para mostrar',
-                            timer: 2000
+                            icon: 'error',
+                            text: res || 'Error al cargar archivos'
                         });
                     }
-                } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        text: res || 'Error al cargar archivos'
-                    });
-                }
-            });
+                });
         }
 
         const listFilesHTML = () => {
+            const container = document.getElementById('row-files');
             let html = '';
+            let imageCount = 0;
+
             listFiles.forEach((file, index) => {
                 if (file.type && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(file.type.toLowerCase())) {
+                    // Lazy loading: solo las primeras 12 imágenes se cargan inmediatamente
+                    const imgAttr = imageCount < 12 ?
+                        `src="${file.path}"` :
+                        `data-src="${file.path}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150'%3E%3C/svg%3E"`;
+
                     html += `<div class="col-sm-3 pb-2 p-2">
                         <div class="file-item" onclick="seleccionarImagen('${file.path}', this)">
-                            <img src="${file.path}" alt="${file.name}" title="${file.name}">
+                            <img ${imgAttr} alt="${file.name}" title="${file.name}" loading="lazy" class="lazy-img">
                         </div>
                     </div>`;
+                    imageCount++;
                 }
             });
+
             // Agregar botón "Buscar más"
             html += `<div class="col-sm-3 pb-2 p-2">
                 <div class="file-item-end text-center d-flex flex-column align-items-center justify-content-center" 
@@ -328,11 +377,66 @@
                     <span class="mt-2">Buscar más</span>
                 </div>
             </div>`;
-            document.getElementById('row-files').innerHTML = html;
+
+            // Usar requestAnimationFrame para optimizar rendering
+            requestAnimationFrame(() => {
+                container.innerHTML = html;
+                requestAnimationFrame(() => initLazyLoading());
+            });
+        }
+
+        // Intersection Observer para lazy loading optimizado
+        let imageObserver = null;
+
+        function initLazyLoading() {
+            // Limpiar observer anterior si existe
+            if (imageObserver) {
+                imageObserver.disconnect();
+            }
+
+            const lazyImages = document.querySelectorAll('img[data-src]');
+
+            // Si no hay imágenes pendientes, salir
+            if (lazyImages.length === 0) {
+                return;
+            }
+
+            if ('IntersectionObserver' in window) {
+                imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            // Cargar imagen
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            observer.unobserve(img);
+
+                            // Si ya no quedan imágenes por cargar, desconectar observer completamente
+                            const remainingImages = document.querySelectorAll('img[data-src]');
+                            if (remainingImages.length === 0) {
+                                observer.disconnect();
+                                imageObserver = null;
+                            }
+                        }
+                    });
+                }, {
+                    root: document.querySelector('#modalFiles .modal-body'),
+                    rootMargin: '150px',
+                    threshold: 0.01
+                });
+
+                lazyImages.forEach(img => imageObserver.observe(img));
+            } else {
+                // Fallback para navegadores antiguos
+                lazyImages.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                });
+            }
         }
 
         // Cargar archivos iniciales al abrir modal
-        document.getElementById('modalFiles').addEventListener('show.bs.modal', function () {
+        document.getElementById('modalFiles').addEventListener('show.bs.modal', function() {
             if (listFiles.length === 0) {
                 listFilesJson('img/portadas/');
             }

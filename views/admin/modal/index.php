@@ -26,6 +26,9 @@
         #modalFiles .file-item-img {
             border-radius: 1px;
             overflow: hidden;
+            transform: translateZ(0);
+            will-change: transform;
+            contain: layout style paint;
         }
 
         #modalFiles .file-item-img:hover {
@@ -38,7 +41,7 @@
         }
 
         #modalFiles .file-item-img:hover img {
-            transform: scale(1.12);
+            transform: scale3d(1.12, 1.12, 1);
         }
 
         #modalFiles .file-item-img img {
@@ -47,6 +50,24 @@
             object-fit: cover;
             border-radius: 1px;
             transition: transform .2s ease-in-out;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        #modalFiles .file-item-img img[data-src] {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         #modalFiles div.file-item {
@@ -74,6 +95,14 @@
 
         #modalFiles img.selected {
             filter: grayscale(250%);
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            transform: translateZ(0);
+            -webkit-overflow-scrolling: touch;
+            will-change: scroll-position;
         }
 
         .responsive {
@@ -204,7 +233,7 @@
                         <div class="row px-2 pb-1" v-if="modoFiles == 'I'">
                             <div class="col-sm-2" v-for="(item, index) in listFiles" style="padding: 2px;">
                                 <div class="file-item-img">
-                                    <img :src="item.path" :title="item.name" :id="'img' + item.id" @click="agregarItem(item.path, 'img',item.id)">
+                                    <img :data-src="item.miniatura || item.path" :src="index < 12 ? (item.miniatura || item.path) : ''" :title="item.name" :id="'img' + item.id" @click="agregarItem(item.path, 'img',item.id)">
                                 </div>
                             </div>
                             <div class="col-sm-2" style="padding: 2px;">
@@ -254,6 +283,11 @@
             },
             created() {
                 this.listFilesJson('img/galeria/');
+            },
+            updated() {
+                this.$nextTick(() => {
+                    initLazyLoading();
+                });
             },
             watch: {
                 modoFiles: function(value) {
@@ -394,7 +428,7 @@
                         this.listCarousel = [];
 
                     }
-                    
+
                     document.getElementById('mod-body').innerHTML = '';
 
 
@@ -407,8 +441,8 @@
                         text: mensaje,
                     });
                     setTimeout(() => {
-                                document.location.reload();
-                            }, 1800);
+                        document.location.reload();
+                    }, 1800);
 
                 }
             }
@@ -421,6 +455,36 @@
                 loader.style.display = 'none';
             }, 500);
         }, 2500);
+
+        let lazyObserver = null;
+
+        function initLazyLoading() {
+            if (lazyObserver) {
+                lazyObserver.disconnect();
+            }
+
+            const lazyImages = document.querySelectorAll('#modalFiles img[data-src]');
+            if (lazyImages.length === 0) return;
+
+            lazyObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        requestAnimationFrame(() => {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        });
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                root: document.querySelector('#modalFiles .modal-body'),
+                rootMargin: '150px',
+                threshold: 0.01
+            });
+
+            lazyImages.forEach(img => lazyObserver.observe(img));
+        }
     </script>
 </body>
 

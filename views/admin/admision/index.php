@@ -25,10 +25,11 @@
     <style>
         .section-card {
             border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             border-radius: 8px;
         }
+
         .section-card .card-header {
             background: var(--color3);
             color: white;
@@ -39,6 +40,9 @@
         #modalFiles .file-item-img {
             border-radius: 1px;
             overflow: hidden;
+            position: relative;
+            will-change: auto;
+            contain: layout style paint;
         }
 
         #modalFiles .file-item-img:hover {
@@ -51,7 +55,7 @@
         }
 
         #modalFiles .file-item-img:hover img {
-            transform: scale(1.12);
+            transform: scale3d(1.08, 1.08, 1);
         }
 
         #modalFiles .file-item-img img {
@@ -59,7 +63,26 @@
             height: 120px;
             object-fit: cover;
             border-radius: 1px;
-            transition: transform .2s ease-in-out;
+            transition: transform 0.15s ease-out;
+            background: #f0f0f0;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        #modalFiles .file-item-img img[data-src] {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         #modalFiles div.file-item {
@@ -95,6 +118,24 @@
 
         #cantFiles {
             font-size: 15px;
+        }
+
+        /* Optimización de scroll performance */
+        #modalFiles .modal-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            transform: translateZ(0);
+            will-change: scroll-position;
+        }
+
+        #modalFiles .row {
+            contain: layout style;
+        }
+
+        #modalFiles .col-sm-2,
+        #modalFiles .col-sm-3 {
+            contain: layout style paint;
         }
     </style>
 
@@ -143,7 +184,7 @@
                         <textarea class="form-control tinymce-editor" id="editor" name="cuerpo"><?= $this->dataAdmision['cuerpo'] ?? '' ?></textarea>
                         <small class="text-muted">Puedes agregar texto, tablas, imágenes, listas y más usando el editor.</small>
                     </div>
-                    
+
                     <!-- hidden para vista previa -->
                     <textarea name="cuerpo_preview" id="txtcuerpo" style="display: none;"></textarea>
                     <input type="hidden" name="titulo_preview" id="txttitulo">
@@ -204,7 +245,7 @@
                 'alignleft aligncenter alignright alignjustify | ' +
                 'bullist numlist outdent indent | table image link | removeformat code | help',
             content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 15px; line-height: 1.6; padding: 10px; }',
-            
+
             // Configuración de tablas
             table_toolbar: 'tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol',
             table_default_attributes: {
@@ -214,29 +255,40 @@
                 'border-collapse': 'collapse',
                 'width': '100%'
             },
-            table_class_list: [
-                {title: 'Ninguna', value: ''},
-                {title: 'Tabla Bootstrap', value: 'table'},
-                {title: 'Tabla Rayada', value: 'table table-striped'},
-                {title: 'Tabla Bordeada', value: 'table table-bordered'},
+            table_class_list: [{
+                    title: 'Ninguna',
+                    value: ''
+                },
+                {
+                    title: 'Tabla Bootstrap',
+                    value: 'table'
+                },
+                {
+                    title: 'Tabla Rayada',
+                    value: 'table table-striped'
+                },
+                {
+                    title: 'Tabla Bordeada',
+                    value: 'table table-bordered'
+                },
             ]
         });
 
         // Vista previa
         const vistaPrevia = (e) => {
             e.preventDefault();
-            
+
             // Sincronizar TinyMCE
             tinymce.triggerSave();
-            
+
             // Obtener valores
             let cuerpo = tinymce.get('editor').getContent();
             let titulo = document.getElementById('titulo').value;
-            
+
             // Asignar a campos hidden
             document.getElementById('txtcuerpo').value = cuerpo;
             document.getElementById('txttitulo').value = titulo;
-            
+
             // Submit del formulario
             document.getElementById('formGeneral').submit();
         }
@@ -245,31 +297,31 @@
         const guardarContenido = () => {
             tinymce.triggerSave();
             const formData = new FormData(document.getElementById('formGeneral'));
-            
+
             // Remover campos de preview
             formData.delete('cuerpo_preview');
             formData.delete('titulo_preview');
             formData.delete('preview');
-            
+
             fetch('/admin/admision/actualizar', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.text())
-            .then(res => {
-                if (res.trim() === 'OK') {
-                    Swal.fire({
-                        icon: 'success',
-                        text: 'Contenido actualizado correctamente',
-                        timer: 2000
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        text: 'Error al actualizar'
-                    });
-                }
-            });
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.text())
+                .then(res => {
+                    if (res.trim() === 'OK') {
+                        Swal.fire({
+                            icon: 'success',
+                            text: 'Contenido actualizado correctamente',
+                            timer: 2000
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Error al actualizar'
+                        });
+                    }
+                });
         }
 
         // Evento submit para vista previa
@@ -327,11 +379,17 @@
         }
 
         function listFilesHTML(type) {
+            const container = document.getElementById('row-files');
             let html = ``;
             if (type == 'I') {
                 listFiles.forEach((file, index) => {
+                    // Lazy loading: solo las primeras 12 imágenes se cargan inmediatamente
+                    const imgAttr = index < 12 ?
+                        `src="${file.path}"` :
+                        `data-src="${file.path}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3C/svg%3E"`;
+
                     html += `<div class="col-sm-2" style="padding: 2px;"><div class="file-item-img">
-                    <img src="${file.path}" title="${file.name}" onclick="agregarItem('${file.path}', '${type}')"></div></div>`;
+                    <img ${imgAttr} title="${file.name}" onclick="agregarItem('${file.path}', '${type}')" loading="lazy" class="lazy-img"></div></div>`;
                 });
                 html += `<div class="col-sm-2" style="padding: 2px;">
                     <div class="file-item-img end text-center" onclick="listFilesJson('img/galeria/', '${type}')">
@@ -350,7 +408,66 @@
                     </div>`;
                 });
             }
-            document.getElementById('row-files').innerHTML = html;
+
+            // Usar requestAnimationFrame para optimizar rendering
+            requestAnimationFrame(() => {
+                container.innerHTML = html;
+
+                // Inicializar lazy loading para imágenes
+                if (type == 'I') {
+                    requestAnimationFrame(() => initLazyLoading());
+                }
+            });
+        }
+
+        // Intersection Observer para lazy loading optimizado
+        let imageObserver = null;
+
+        function initLazyLoading() {
+            // Limpiar observer anterior si existe
+            if (imageObserver) {
+                imageObserver.disconnect();
+            }
+
+            const lazyImages = document.querySelectorAll('img[data-src]');
+
+            // Si no hay imágenes pendientes, salir
+            if (lazyImages.length === 0) {
+                return;
+            }
+
+            if ('IntersectionObserver' in window) {
+                imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            // Cargar imagen
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            observer.unobserve(img);
+
+                            // Si ya no quedan imágenes por cargar, desconectar observer completamente
+                            const remainingImages = document.querySelectorAll('img[data-src]');
+                            if (remainingImages.length === 0) {
+                                observer.disconnect();
+                                imageObserver = null;
+                            }
+                        }
+                    });
+                }, {
+                    root: document.querySelector('#modalFiles .modal-body'),
+                    rootMargin: '150px',
+                    threshold: 0.01
+                });
+
+                lazyImages.forEach(img => imageObserver.observe(img));
+            } else {
+                // Fallback para navegadores antiguos
+                lazyImages.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                });
+            }
         }
 
         function agregarItem(url, tipo) {

@@ -83,6 +83,9 @@ die();
             border: 1px solid rgb(222, 222, 222);
             border-radius: 1px;
             overflow: hidden;
+            transform: translateZ(0);
+            will-change: transform;
+            contain: layout style paint;
         }
 
         #modalFiles .file-item:hover {
@@ -90,7 +93,7 @@ die();
         }
 
         #modalFiles .file-item:hover img {
-            transform: scale(1.1);
+            transform: scale3d(1.1, 1.1, 1);
         }
 
         #modalFiles .file-item img {
@@ -99,6 +102,32 @@ die();
             object-fit: cover;
             border-radius: 1px;
             transition: transform .2s ease-in-out;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        #modalFiles .file-item img[data-src] {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            transform: translateZ(0);
+            -webkit-overflow-scrolling: touch;
+            will-change: scroll-position;
         }
     </style>
 
@@ -176,10 +205,10 @@ die();
                     <div class="modal-body">
                         <div class="row px-2">
                             <?php
-                            foreach ($this->listArchivos as $file) : ?>
+                            foreach ($this->listArchivos as $index => $file) : ?>
                                 <div class="col-sm-3 pb-1 p-1">
                                     <div class="file-item">
-                                        <img src="<?= $file['path'] ?>" title="<?= $file['name'] ?>" onclick="agregarImagen(this.src)">
+                                        <img <?= $index < 12 ? 'src="' . ($file['miniatura'] ?? $file['path']) . '"' : 'data-src="' . ($file['miniatura'] ?? $file['path']) . '"' ?> title="<?= $file['name'] ?>" onclick="agregarImagen(this.<?= $index < 12 ? 'src' : 'dataset.src' ?>)">
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -260,17 +289,17 @@ die();
 
         const TituloImagen = (index) => {
             Swal.fire({
-            text: 'Ingresa el titulo de la portada',
-            input: 'text',
-            inputValue: listItems[index].titulo,
-            inputAttributes: {
-                maxlength: 20
-            },
-            confirmButtonText: 'Aceptar',
+                text: 'Ingresa el titulo de la portada',
+                input: 'text',
+                inputValue: listItems[index].titulo,
+                inputAttributes: {
+                    maxlength: 20
+                },
+                confirmButtonText: 'Aceptar',
             }).then((result) => {
-            if (result.isConfirmed) {
-                listItems[index].titulo = result.value;
-            }
+                if (result.isConfirmed) {
+                    listItems[index].titulo = result.value;
+                }
             });
         }
         const DetalleImagen = (index) => {
@@ -279,12 +308,12 @@ die();
                 input: 'textarea',
                 inputValue: listItems[index].detalle,
                 inputAttributes: {
-                maxlength: 180
-            },
+                    maxlength: 180
+                },
                 confirmButtonText: 'Aceptar',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    listItems[index].detalle = result.value.replace(/\n/g, '<br>');//para permitir saltos de línea y no causar error
+                    listItems[index].detalle = result.value.replace(/\n/g, '<br>'); //para permitir saltos de línea y no causar error
                 }
             });
         }
@@ -356,6 +385,42 @@ die();
         }
 
         listarImagenes();
+
+        // Lazy Loading Initialization
+        let lazyObserver = null;
+
+        function initLazyLoading() {
+            if (lazyObserver) {
+                lazyObserver.disconnect();
+            }
+
+            const lazyImages = document.querySelectorAll('#modalFiles img[data-src]');
+            if (lazyImages.length === 0) return;
+
+            lazyObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        requestAnimationFrame(() => {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        });
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                root: document.querySelector('#modalFiles .modal-body'),
+                rootMargin: '150px',
+                threshold: 0.01
+            });
+
+            lazyImages.forEach(img => lazyObserver.observe(img));
+        }
+
+        // Initialize lazy loading when modal opens
+        document.getElementById('modalFiles').addEventListener('shown.bs.modal', function() {
+            initLazyLoading();
+        });
 
         setTimeout(() => {
             let loader = document.getElementById('preloader');
