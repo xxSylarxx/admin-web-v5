@@ -326,7 +326,7 @@
                             const formData = new URLSearchParams();
                             formData.append('idsuscripcion', id);
 
-                            fetch('/admin/correos/eliminar', {
+                            fetch('/admin/suscripciones/eliminar', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -364,7 +364,7 @@
                             for (let id of this.selectedSuscripciones) {
                                 const formData = new URLSearchParams();
                                 formData.append('idsuscripcion', id);
-                                let res = await fetch('/admin/correos/eliminar', {
+                                let res = await fetch('/admin/suscripciones/eliminar', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded',
