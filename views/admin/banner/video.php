@@ -202,7 +202,13 @@ die();
 
         const selectVideo = (src) => {
             path_video = src;
-            document.getElementById('video-src').setAttribute('src', src);
+            let videoElement = document.getElementById('video-src');
+            if (videoElement) {
+                videoElement.setAttribute('src', src);
+            } else {
+                // Crear elemento de video si no existe (modo YouTube estaba activo)
+                document.getElementById('video-body').innerHTML = `<video src="${src}" id="video-src" width="100%" controls></video>`;
+            }
             modal.hide();
         }
 
@@ -211,6 +217,11 @@ die();
             document.getElementById('link-youtube').value = '';
             document.getElementById('link-youtube').style.display = value ? 'block' : 'none';
             document.getElementById('btn-buscar').style.display = !value ? 'block' : 'none';
+
+            // Si desactiva YouTube, restaurar el elemento de video
+            if (!value) {
+                document.getElementById('video-body').innerHTML = `<video src="${path_video}" id="video-src" width="100%" controls></video>`;
+            }
         }
 
         const modoYoutube = (src) => {
